@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import {Text, View, FlatList, Pressable, Alert} from 'react-native';
 import styles from './styles.js';
 import {Icon} from './Icon';
-import {getDBConnection, getWallets, removeWallet} from './db.js';
+import {getDBConnection, getItems, removeItem} from './db.js';
 
 var db = getDBConnection();
 
@@ -12,7 +12,7 @@ export default function AllWalletsPage({navigation}) {
 
   useEffect(() => {
     const focusHandler = navigation.addListener('focus', () => {
-      getWallets(db, setWalletList);
+      getItems(db, setWalletList, 'wallet');
     });
     return focusHandler;
   }, [navigation]);
@@ -87,8 +87,8 @@ function handleDelete(item, setWalletList) {
       {
         text: 'Yes',
         onPress: () => {
-          removeWallet(item.id, db);
-          getWallets(db, setWalletList);
+          removeItem(item.id, db, 'wallet');
+          getItems(db, setWalletList, 'wallet');
         },
       },
       {

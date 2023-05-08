@@ -5,7 +5,7 @@ import styles from './styles.js';
 import {Row, Col} from './components';
 import IconPicker from './IconPicker';
 import {Icon} from './Icon';
-import {addWallet, editWallet, getDBConnection} from './db.js';
+import {getDBConnection, addItem, editItem} from './db.js';
 
 var db = getDBConnection();
 
@@ -88,7 +88,7 @@ export default function AddWalletPage({navigation, route}) {
 function handleSubmit(id, title, icon, styleSetter, navigation) {
   styleSetter(1);
   if (id) {
-    editWallet(
+    editItem(
       {
         id: id,
         title: title,
@@ -96,11 +96,13 @@ function handleSubmit(id, title, icon, styleSetter, navigation) {
         icon_source: icon.source,
       },
       db,
+      'wallet',
     );
   } else {
-    addWallet(
+    addItem(
       {title: title, icon_name: icon.name, icon_source: icon.source},
       db,
+      'wallet',
     );
   }
   Alert.alert(

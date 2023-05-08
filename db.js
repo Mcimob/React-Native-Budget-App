@@ -4,6 +4,12 @@ export function getDBConnection() {
   return openDatabase({name: 'budget-data.db', location: 'default'});
 }
 
+const tableNames = {
+  entry: 'Entries',
+  wallet: 'Wallets',
+  category: 'Categories',
+};
+
 export async function createTables(db) {
   const query_table_lookup =
     "SELECT name FROM sqlite_master WHERE type='table' AND name='Wallets'";
@@ -35,8 +41,7 @@ export async function createTables(db) {
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     icon_name TEXT NOT NULL,
-    icon_source TEXT NOT NULL,
-    default_wallet_id INTEGER NOT NULL
+    icon_source TEXT NOT NULL
 )`;
 
   db.transaction(function (txn) {
@@ -63,15 +68,15 @@ export async function createTables(db) {
   });
 }
 
-export function getWallets(db, setter) {
+export function getItems(db, setter, itemType) {
   db.transaction(tx => {
-    getWalletsFromTransaction(tx, setter);
+    getItemsFromTransaction(tx, setter, itemType);
   });
 }
 
-function getWalletsFromTransaction(tx, setter) {
-  const query_get_wallets = 'SELECT * FROM Wallets';
-  tx.executeSql(query_get_wallets, [], (tx, results) => {
+function getItemsFromTransaction(tx, setter, itemType) {
+  const query_get = 'SELECT * FROM ' + tableNames[itemType];
+  tx.executeSql(query_get, [], (tx, results) => {
     let tmp = [];
     for (let i = 0; i < results.rows.length; i++) {
       tmp.push(results.rows.item(i));
@@ -80,45 +85,58 @@ function getWalletsFromTransaction(tx, setter) {
   });
 }
 
-export function addWallet(item, db) {
-  let hasId = Object.keys(item).includes('id');
-  const query_insert_wallet =
-    'INSERT INTO Wallets (' +
-    (hasId ? 'id' : '') +
-    'title, icon_name, icon_source) VALUES (' +
-    (hasId ? '?,' : '') +
-    '?,?,?)';
+export function addItem(item, db, itemType) {
+  const itemKeys = Object.keys(item);
+
+  const query_prefix = 'INSERT INTO ';
+  const brackets = '(' + itemKeys.join(', ') + ')';
+  const unknonws = '(' + '?,'.repeat(itemKeys.length - 1) + '?)';
+
+  console.log(
+    query_prefix + tableNames[itemType] + brackets + ' VALUES ' + unknonws,
+  );
+
   db.transaction(tx => {
-    tx.executeSql(query_insert_wallet, [
-      item.title,
-      item.icon_name,
-      item.icon_source,
-    ]);
+    tx.executeSql(
+      query_prefix + tableNames[itemType] + brackets + ' VALUES ' + unknonws,
+      getItemArray(item, itemKeys),
+    );
   });
 }
 
-export function removeWallet(id, db) {
-  const query_delete_wallet = 'DELETE FROM Wallets WHERE id=?';
+export function removeItem(id, db, itemType) {
+  const query_delete_wallet =
+    'DELETE FROM ' + tableNames[itemType] + ' WHERE id=?';
   db.transaction(tx => {
     tx.executeSql(query_delete_wallet, [id]);
   });
 }
 
-export function editWallet(item, db) {
-  const query_edit_wallet = `UPDATE Wallets SET 
-    title=?,
-    icon_name=?,
-    icon_source=?
-  WHERE
-    id=?`;
+export function editItem(item, db, itemType) {
+  var itemKeys = Object.keys(item);
+
+  if (!itemKeys.includes('id')) {
+    throw 'No ID Supplied';
+  }
+  itemKeys = itemKeys.filter(value => value != 'id');
+
+  const query_set = itemKeys.join('=?, ') + '=?';
+  itemKeys.push('id');
+
   db.transaction(tx => {
     tx.executeSql(
-      query_edit_wallet,
-      [item.title, item.icon_name, item.icon_source, item.id],
+      'UPDATE ' + tableNames[itemType] + ' SET ' + query_set + ' WHERE id=?',
+      getItemArray(item, itemKeys),
       (txn, res) => {},
       error => {
-        console.log('Error editing a Wallet item. Error: ' + error.message);
+        console.log('Error editing an item. Error: ' + error.message);
       },
     );
   });
+}
+
+function getItemArray(item, itemKeys) {
+  let out = [];
+  itemKeys.forEach(key => out.push(item[key]));
+  return out;
 }
