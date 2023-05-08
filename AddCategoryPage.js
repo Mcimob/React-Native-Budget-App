@@ -8,7 +8,7 @@ import IconPicker from './IconPicker.js';
 
 var db = getDBConnection();
 
-export default function AddWalletPage({navigation, route}) {
+export default function AddCategoryPage({navigation, route}) {
   const id = route.params && route.params.id;
   const [title, setTitle] = useState(id ? route.params.title : '');
   const [icon, setIcon] = useState(
