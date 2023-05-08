@@ -1,16 +1,27 @@
-import React, {useState} from 'react';
-import {View, Pressable, Text, TextInput, FlatList} from 'react-native';
-import Modal from 'react-native-modal';
+import React from 'react';
+import {View} from 'react-native';
+import {TextInput} from 'react-native-paper';
 import styles from './styles';
-import IconAntDesign from 'react-native-vector-icons/AntDesign';
-import AntGlyphMap from 'react-native-vector-icons/glyphmaps/AntDesign.json';
 
-function Col({numRows = 2, children}) {
+export function Col({numRows = 2, children}) {
   return <View style={styles[`${numRows}col`]}>{children}</View>;
 }
 
-function Row({children}) {
+export function Row({children}) {
   return <View style={styles.row}>{children}</View>;
 }
 
-export {Row, Col};
+export function CustomTextInput({placeholder, text, setText}) {
+  return (
+    <TextInput
+      style={styles.inputBox}
+      placeholder={placeholder}
+      onChangeText={newText => setText(newText)}
+      defaultValue={text}
+      mode="flat"
+      activeUnderlineColor="blue"
+      underlineColor="lightgray"
+      textColor="black"
+    />
+  );
+}

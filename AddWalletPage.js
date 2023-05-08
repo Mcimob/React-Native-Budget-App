@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {Text, View, Pressable, Alert} from 'react-native';
 import {TextInput} from 'react-native-paper';
 import styles from './styles.js';
-import {Row, Col} from './components';
+import {Row, Col, CustomTextInput} from './components';
 import IconPicker from './IconPicker';
 import {Icon} from './Icon';
 import {getDBConnection, addItem, editItem} from './db.js';
@@ -15,7 +15,7 @@ export default function AddWalletPage({navigation, route}) {
   const [icon, setIcon] = useState(
     id
       ? {name: route.params.icon_name, source: route.params.icon_source}
-      : {name: 'back', source: 'ant'},
+      : {name: 'wallet', source: 'ant'},
   );
   const [modalVisible, setModalVisible] = useState(false);
   const [styleState, setStyleState] = useState(0);
@@ -28,21 +28,15 @@ export default function AddWalletPage({navigation, route}) {
             <Text style={styles.textBasic}>Enter a title:</Text>
           </Col>
           <Col>
-            <TextInput
-              style={styles.inputBox}
+            <CustomTextInput
               placeholder="A good title"
-              onChangeText={newTitle => setTitle(newTitle)}
-              defaultValue={title}
-              mode="flat"
-              activeUnderlineColor="blue"
-              underlineColor="lightgray"
-              textColor="black"
+              text={title}
+              setText={setTitle}
             />
           </Col>
         </Row>
         <Row>
           <Col>
-            <Text>{modalVisible}</Text>
             <Text style={styles.textBasic}>Select an Icon for the Wallet</Text>
           </Col>
           <Col>
