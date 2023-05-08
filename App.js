@@ -12,6 +12,7 @@ import HomeScreen from './Home';
 import AddPage from './AddPage';
 import AllWalletsPage from './AllWalletsPage';
 import {Icon} from './Icon';
+import AllCategoriesPage from './AllCategoriesPage';
 
 function App() {
   return (
@@ -47,6 +48,11 @@ function App() {
           name="All Wallets"
           component={AllWalletsPage}
           options={{headerRight: () => {}}}
+        />
+        <Tab.Screen
+          name="All Categories"
+          component={AllCategoriesPage}
+          otions={{headerRight: () => {}}}
         />
       </Tab.Navigator>
     </NavigationContainer>

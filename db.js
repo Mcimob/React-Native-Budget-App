@@ -37,7 +37,10 @@ export async function createTables(db) {
   const query_wallet_insert =
     'INSERT INTO Wallets (id, title, icon_name, icon_source) VALUES (?,?,?,?)';
 
-  const query_category = `CREATE TABLE IF NOT EXISTS Categories(
+  const query_cat_insert =
+    'INSERT INTO Categories (id, title, icon_name, icon_source) VALUES (?,?,?,?)';
+
+  const query_category = `CREATE TABLE Categories(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     icon_name TEXT NOT NULL,
@@ -59,9 +62,15 @@ export async function createTables(db) {
 
         tx.executeSql(query_wallet_insert, [
           1,
-          'DefaultWallet',
+          'Default Wallet',
           'wallet',
           'ant',
+        ]);
+        tx.executeSql(query_cat_insert, [
+          1,
+          'Default Category',
+          'shopping-bag',
+          'feather',
         ]);
       }
     });
@@ -92,13 +101,14 @@ export function addItem(item, db, itemType) {
   const brackets = '(' + itemKeys.join(', ') + ')';
   const unknonws = '(' + '?,'.repeat(itemKeys.length - 1) + '?)';
 
-  console.log(
-    query_prefix + tableNames[itemType] + brackets + ' VALUES ' + unknonws,
-  );
-
   db.transaction(tx => {
     tx.executeSql(
-      query_prefix + tableNames[itemType] + brackets + ' VALUES ' + unknonws,
+      query_prefix +
+        tableNames[itemType] +
+        ' ' +
+        brackets +
+        ' VALUES ' +
+        unknonws,
       getItemArray(item, itemKeys),
     );
   });

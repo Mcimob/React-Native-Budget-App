@@ -109,7 +109,7 @@ function handleSubmit(id, title, icon, styleSetter, navigation) {
         onPress: () => {
           styleSetter(0);
           if (id) {
-            navigation.navigate('ViewWallets');
+            navigation.navigate('All Categories');
           }
         },
       },
