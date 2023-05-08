@@ -1,15 +1,24 @@
 import React, {useState} from 'react';
-import {Text, View, Pressable} from 'react-native';
+import {Text, View, Pressable, Alert} from 'react-native';
 import {TextInput} from 'react-native-paper';
 import styles from './styles.js';
 import {Row, Col} from './components';
 import IconPicker from './IconPicker';
 import {Icon} from './Icon';
+import {addWallet, editWallet, getDBConnection} from './db.js';
 
-export default function AddWalletPage({navigation}) {
-  const [title, setTitle] = useState('');
-  const [icon, setIcon] = useState({name: 'back', source: 'ant'});
+var db = getDBConnection();
+
+export default function AddWalletPage({navigation, route}) {
+  const id = route.params && route.params.id;
+  const [title, setTitle] = useState(id ? route.params.title : '');
+  const [icon, setIcon] = useState(
+    id
+      ? {name: route.params.icon_name, source: route.params.icon_source}
+      : {name: 'back', source: 'ant'},
+  );
   const [modalVisible, setModalVisible] = useState(false);
+  const [styleState, setStyleState] = useState(0);
 
   return (
     <View style={styles.inputPage}>
@@ -27,6 +36,7 @@ export default function AddWalletPage({navigation}) {
               mode="flat"
               activeUnderlineColor="blue"
               underlineColor="lightgray"
+              textColor="black"
             />
           </Col>
         </Row>
@@ -48,6 +58,23 @@ export default function AddWalletPage({navigation}) {
             </Pressable>
           </Col>
         </Row>
+        <Pressable
+          style={[
+            styles.roundedBox,
+            styles.black,
+            styleState == 1 && styles.buttonHover,
+          ]}
+          onPress={() =>
+            handleSubmit(id, title, icon, setStyleState, navigation)
+          }>
+          <Text
+            style={[
+              styles.buttonText,
+              styleState == 1 && styles.buttonHoverText,
+            ]}>
+            Submit {id ? '' : 'new'} Wallet
+          </Text>
+        </Pressable>
       </View>
       <IconPicker
         modalVisible={modalVisible}
@@ -58,6 +85,37 @@ export default function AddWalletPage({navigation}) {
   );
 }
 
-function handleSubmit(id, iconName, iconSet, iconColor, backgroundColor) {
-  console.log({id, iconName, iconSet, iconColor, backgroundColor});
+function handleSubmit(id, title, icon, styleSetter, navigation) {
+  styleSetter(1);
+  if (id) {
+    editWallet(
+      {
+        id: id,
+        title: title,
+        icon_name: icon.name,
+        icon_source: icon.source,
+      },
+      db,
+    );
+  } else {
+    addWallet(
+      {title: title, icon_name: icon.name, icon_source: icon.source},
+      db,
+    );
+  }
+  Alert.alert(
+    'Success!',
+    id ? 'Entry successfully updated' : 'New entry successfully added',
+    [
+      {
+        text: 'OK',
+        onPress: () => {
+          styleSetter(0);
+          if (id) {
+            navigation.navigate('ViewWallets');
+          }
+        },
+      },
+    ],
+  );
 }

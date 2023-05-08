@@ -12,7 +12,7 @@ export default function AddPage({navigation}) {
     <Tab.Navigator
       initialRouteName="AddEntry"
       screenOptions={{
-        tabBarActiveTintColor: '#ffffff',
+        tabBarActiveTintColor: '#fff',
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: 'bold',

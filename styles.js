@@ -2,7 +2,8 @@ import {StyleSheet} from 'react-native';
 
 export default styles = StyleSheet.create({
   inputPage: {
-    height: '90%',
+    height: '100%',
+    width: '100%',
     padding: 10,
     flexDirection: 'column',
     justifyContent: 'center',
@@ -13,6 +14,7 @@ export default styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 10,
   },
   textBasic: {
     padding: 10,
@@ -28,6 +30,7 @@ export default styles = StyleSheet.create({
   inputBox: {
     margin: 10,
     width: 150,
+    Color: 'black',
   },
   grid2: {
     flex: 4,
@@ -83,5 +86,30 @@ export default styles = StyleSheet.create({
   },
   iconList: {
     overflow: 'scroll',
+  },
+  itemList: {
+    overflow: 'scroll',
+    width: '100%',
+    padding: 20,
+  },
+  item: {
+    width: 200,
+    backgroundColor: '#eee',
+    borderRadius: 10,
+    padding: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+
+  buttonHover: {
+    backgroundColor: 'white',
+    borderColor: 'black',
+    borderWidth: 2,
+  },
+  buttonHoverText: {
+    color: 'black',
+  },
+  deleteIcon: {
+    padding: 10,
   },
 });
