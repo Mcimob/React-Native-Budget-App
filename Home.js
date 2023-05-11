@@ -96,7 +96,7 @@ export default function HomeScreen({navigation}) {
         </Pressable>
       </View>
       <Separator />
-      <View>
+      <View style={{height: '50%'}}>
         <Animated.View
           style={{
             opacity: togglePosition.interpolate({
@@ -105,6 +105,8 @@ export default function HomeScreen({navigation}) {
             }),
             zIndex: toggleState ? 1 : 0,
             elevation: toggleState ? 1 : 0,
+            width: '100%',
+            height: '100%',
           }}>
           <FlatList
             key="grid"
@@ -122,6 +124,7 @@ export default function HomeScreen({navigation}) {
                 toggleState,
               )
             }
+            ListFooterComponent={<View style={{height: 30}} />}
           />
         </Animated.View>
         <Animated.View
@@ -131,6 +134,8 @@ export default function HomeScreen({navigation}) {
               alignSelf: 'center',
               zIndex: toggleState ? 0 : 1,
               elevation: toggleState ? 0 : 1,
+              width: '100%',
+              height: '100%',
             },
             {
               opacity: togglePosition.interpolate({
@@ -154,6 +159,7 @@ export default function HomeScreen({navigation}) {
                 toggleState,
               )
             }
+            ListFooterComponent={<View style={{height: 30}} />}
           />
         </Animated.View>
       </View>
