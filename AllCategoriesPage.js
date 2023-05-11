@@ -8,7 +8,7 @@ import {
   Animated,
   Easing,
 } from 'react-native';
-import styles, {smoothWidthChange} from './styles.js';
+import styles, {smoothWidthChange, smoothChange} from './styles.js';
 import {Icon} from './Icon';
 import {getDBConnection, getItems, removeItem} from './db.js';
 import {UpperRightEditButton} from './components.js';
@@ -29,12 +29,9 @@ export default function AllCategoriesPage({navigation}) {
   var animOpac = new Animated.Value(opac);
 
   useEffect(() => {
-    Animated.timing(animOpac, {
-      toValue: editState ? 1 : 0,
-      duration: 500,
-      useNativeDriver: true,
-      easing: Easing.linear,
-    }).start(({finished}) => setOpac(editState ? 1 : 0));
+    smoothChange(animOpac, editState ? 1 : 0, 500).start(({finished}) =>
+      setOpac(editState ? 1 : 0),
+    );
   }, [editState]);
 
   useEffect(() => {
@@ -97,7 +94,7 @@ export default function AllCategoriesPage({navigation}) {
 
 function CategoryItem({navigation, item}, editState, setCatList, animOpac) {
   return (
-    <View style={[styles.row, {justifyContent: 'flex-start'}]}>
+    <View style={[styles.row, styles.center]}>
       {editState && (
         <Animated.View style={{opacity: animOpac}}>
           <Pressable onPress={() => handleEdit(item, navigation)}>
@@ -120,17 +117,21 @@ function CategoryItem({navigation, item}, editState, setCatList, animOpac) {
           color="#fff"
         />
       </View>
-      {editState && item.id != 1 && (
+      {editState && (
         <Animated.View style={{opacity: animOpac}}>
-          <Pressable onPress={() => handleDelete(item, setCatList)}>
-            <Icon
-              style={styles.deleteIcon}
-              type="ant"
-              name="minuscircle"
-              size={20}
-              color="#fff"
-            />
-          </Pressable>
+          {item.id != 1 ? (
+            <Pressable onPress={() => handleDelete(item, setCatList)}>
+              <Icon
+                style={styles.deleteIcon}
+                type="ant"
+                name="minuscircle"
+                size={20}
+                color="#fff"
+              />
+            </Pressable>
+          ) : (
+            <View style={{width: 40}} />
+          )}
         </Animated.View>
       )}
     </View>

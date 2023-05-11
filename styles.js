@@ -49,9 +49,11 @@ export default styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
+    padding: 10,
+  },
+  center: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 10,
   },
   textBasic: {
     padding: 10,
@@ -104,9 +106,9 @@ export default styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 50,
-    margin: 5,
+    margin: 10,
     justifyContent: 'center',
-    marginTop: 20,
+    //marginTop: 20,
     alignItems: 'center',
     backgroundColor: '#121212',
   },
@@ -119,6 +121,7 @@ export default styles = StyleSheet.create({
     backgroundColor: '#000d',
     borderRadius: 20,
     padding: 25,
+    elevation: 1,
   },
 
   roundedBox: {
@@ -131,8 +134,10 @@ export default styles = StyleSheet.create({
     overflow: 'scroll',
   },
   itemList: {
+    width: 'auto',
     overflow: 'scroll',
     padding: 20,
+    flexGrow: 0,
   },
   itemListBackground: {
     position: 'absolute',
@@ -146,12 +151,13 @@ export default styles = StyleSheet.create({
     height: '100%',
   },
   item: {
-    width: 200,
+    width: 250,
     backgroundColor: '#121212',
     borderRadius: 10,
     padding: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     borderColor: bright,
     borderWidth: 2,
   },
@@ -196,5 +202,18 @@ export default styles = StyleSheet.create({
     alignSelf: 'center',
     backgroundColor: bright,
     elevation: 1,
+  },
+  modalItemList: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    margin: 0,
+  },
+  dark: {backgroundColor: dark},
+  homePage: {
+    height: '100%',
+    width: '100%',
+    backgroundColor: 'black',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
   },
 });

@@ -94,6 +94,15 @@ function getItemsFromTransaction(tx, setter, itemType) {
   });
 }
 
+export function getItem(db, setter, id, itemType) {
+  const query_get = 'SELECT * FROM ' + tableNames[itemType] + ' WHERE id=?';
+  db.transaction(tx => {
+    tx.executeSql(query_get, [id], (tx, results) => {
+      setter(results.rows.item(0));
+    });
+  });
+}
+
 export function addItem(item, db, itemType) {
   const itemKeys = Object.keys(item);
 

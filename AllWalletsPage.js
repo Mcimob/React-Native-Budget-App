@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Text,
   View,
@@ -8,7 +8,7 @@ import {
   Animated,
   Easing,
 } from 'react-native';
-import styles, {smoothWidthChange} from './styles.js';
+import styles, {smoothWidthChange, smoothChange} from './styles.js';
 import {Icon} from './Icon';
 import {getDBConnection, getItems, removeItem} from './db.js';
 import {UpperRightEditButton} from './components.js';
@@ -29,12 +29,9 @@ export default function AllWalletsPage({navigation}) {
   var animOpac = new Animated.Value(opac);
 
   useEffect(() => {
-    Animated.timing(animOpac, {
-      toValue: editState ? 1 : 0,
-      duration: 500,
-      useNativeDriver: true,
-      easing: Easing.linear,
-    }).start(({finished}) => setOpac(editState ? 1 : 0));
+    smoothChange(animOpac, editState ? 1 : 0, 500).start(({finished}) =>
+      setOpac(editState ? 1 : 0),
+    );
   }, [editState]);
 
   useEffect(() => {
@@ -97,7 +94,7 @@ export default function AllWalletsPage({navigation}) {
 
 function WalletItem({navigation, item}, editState, setWalletList, animOpac) {
   return (
-    <View style={[styles.row]}>
+    <View style={[styles.row, styles.center]}>
       {editState ? (
         <Animated.View style={{opacity: animOpac}}>
           <Pressable onPress={() => handleEdit(item, navigation)}>
@@ -122,8 +119,8 @@ function WalletItem({navigation, item}, editState, setWalletList, animOpac) {
       </View>
       {editState && (
         <Animated.View style={{opacity: animOpac}}>
-          <Pressable onPress={() => handleDelete(item, setWalletList)}>
-            {item.id != 1 ? (
+          {item.id != 1 ? (
+            <Pressable onPress={() => handleDelete(item, setWalletList)}>
               <Icon
                 style={[styles.deleteIcon]}
                 type="ant"
@@ -131,10 +128,10 @@ function WalletItem({navigation, item}, editState, setWalletList, animOpac) {
                 color="#fff"
                 size={20}
               />
-            ) : (
-              <View style={{width: 40}} />
-            )}
-          </Pressable>
+            </Pressable>
+          ) : (
+            <View style={{width: 40}} />
+          )}
         </Animated.View>
       )}
     </View>

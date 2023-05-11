@@ -8,7 +8,7 @@ export function Col({numRows = 2, children}) {
 }
 
 export function Row({children}) {
-  return <View style={styles.row}>{children}</View>;
+  return <View style={[styles.row, styles.center]}>{children}</View>;
 }
 
 export function CustomTextInput({placeholder, text, setText, ...props}) {
@@ -30,4 +30,8 @@ export function UpperRightEditButton({state, setState}) {
       <Icon type="ant" name="edit" size={30} color="#fff" />
     </Pressable>
   );
+}
+
+export function Separator() {
+  return <View style={{height: 1, width: '100%', backgroundColor: 'white'}} />;
 }
