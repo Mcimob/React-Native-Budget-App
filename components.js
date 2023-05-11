@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Pressable, TextInput} from 'react-native';
+import {View, Pressable, TextInput, Animated} from 'react-native';
 import styles from './styles';
 import {Icon} from './Icon';
 
@@ -34,4 +34,41 @@ export function UpperRightEditButton({state, setState}) {
 
 export function Separator() {
   return <View style={{height: 1, width: '100%', backgroundColor: 'white'}} />;
+}
+
+export function MinusButton({handleDelete, item, setEntries, ...props}) {
+  return (
+    <Pressable onPress={() => handleDelete(item, setEntries)} {...props}>
+      <Icon
+        style={styles.deleteIcon}
+        type="ant"
+        name="minuscircle"
+        size={20}
+        color="#fff"
+      />
+    </Pressable>
+  );
+}
+
+export function EditButton({handleEdit, item, navigation, ...props}) {
+  return (
+    <Pressable
+      onPress={() => {
+        handleEdit(item, navigation);
+        console.log('edit');
+      }}
+      {...props}>
+      <Icon
+        style={styles.deleteIcon}
+        type="ant"
+        name="edit"
+        size={20}
+        color="#fff"
+      />
+    </Pressable>
+  );
+}
+
+export function ViewAnimatedOpacity({children, animVal, ...props}) {
+  return <Animated.View style={{opacity: animVal}}>{children}</Animated.View>;
 }

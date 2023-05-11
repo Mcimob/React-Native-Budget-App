@@ -49,7 +49,6 @@ export default function ConfigWalletPage({navigation, route}) {
               <Icon
                 type={icon.source}
                 name={icon.name}
-                size={30}
                 color="#fff"
               />
             </Pressable>

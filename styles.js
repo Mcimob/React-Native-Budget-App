@@ -31,7 +31,7 @@ export function smoothChange(animVal, to, duration) {
     toValue: to,
     duration: duration,
     useNativeDriver: false,
-    easing: Easing.linear,
+    easing: Easing.ease,
   });
 }
 
@@ -49,6 +49,8 @@ export default styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
+  },
+  pad10: {
     padding: 10,
   },
   center: {
@@ -160,6 +162,7 @@ export default styles = StyleSheet.create({
     alignItems: 'center',
     borderColor: bright,
     borderWidth: 2,
+    marginHorizontal: 10,
   },
 
   buttonHover: {
@@ -171,7 +174,6 @@ export default styles = StyleSheet.create({
     color: 'black',
   },
   deleteIcon: {
-    padding: 10,
   },
   floatingButton: {
     position: 'absolute',
@@ -215,5 +217,26 @@ export default styles = StyleSheet.create({
     backgroundColor: 'black',
     flexDirection: 'column',
     justifyContent: 'flex-start',
+  },
+  toggleSelector: {
+    width: 80,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 0,
+  },
+  animatedToggleSelector: {
+    backgroundColor: bright,
+    position: 'absolute',
+  },
+  itemGridBox: {
+    padding: 0,
+    height: 100,
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  selfCenter: {
+    alignSelf: 'center',
   },
 });

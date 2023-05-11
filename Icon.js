@@ -70,7 +70,7 @@ function getIcon(type) {
 const Icon = ({type, ...props}) => {
   const FontIcon = getIcon(type);
 
-  return <FontIcon {...props} />;
+  return <FontIcon size={30} color="white" {...props} />;
 };
 
 function allIcons() {

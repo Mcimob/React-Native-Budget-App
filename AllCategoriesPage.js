@@ -1,17 +1,14 @@
 import React, {useState, useEffect} from 'react';
-import {
-  Text,
-  View,
-  FlatList,
-  Pressable,
-  Alert,
-  Animated,
-  Easing,
-} from 'react-native';
+import {Text, View, FlatList, Pressable, Alert, Animated} from 'react-native';
 import styles, {smoothWidthChange, smoothChange} from './styles.js';
 import {Icon} from './Icon';
 import {getDBConnection, getItems, removeItem} from './db.js';
-import {UpperRightEditButton} from './components.js';
+import {
+  UpperRightEditButton,
+  MinusButton,
+  EditButton,
+  ViewAnimatedOpacity,
+} from './components.js';
 
 var db = getDBConnection();
 
@@ -94,45 +91,32 @@ export default function AllCategoriesPage({navigation}) {
 
 function CategoryItem({navigation, item}, editState, setCatList, animOpac) {
   return (
-    <View style={[styles.row, styles.center]}>
+    <View style={[styles.row, styles.center, styles.pad10]}>
       {editState && (
-        <Animated.View style={{opacity: animOpac}}>
-          <Pressable onPress={() => handleEdit(item, navigation)}>
-            <Icon
-              style={styles.deleteIcon}
-              type="ant"
-              name="edit"
-              size={20}
-              color="#fff"
-            />
-          </Pressable>
-        </Animated.View>
+        <ViewAnimatedOpacity animVal={animOpac}>
+          <EditButton
+            item={item}
+            handleEdit={handleEdit}
+            navigation={navigation}
+          />
+        </ViewAnimatedOpacity>
       )}
       <View style={styles.item}>
         <Text style={styles.textBasic}>{item.title}</Text>
-        <Icon
-          type={item.icon_source}
-          name={item.icon_name}
-          size={30}
-          color="#fff"
-        />
+        <Icon type={item.icon_source} name={item.icon_name} />
       </View>
       {editState && (
-        <Animated.View style={{opacity: animOpac}}>
+        <ViewAnimatedOpacity animVal={animOpac}>
           {item.id != 1 ? (
-            <Pressable onPress={() => handleDelete(item, setCatList)}>
-              <Icon
-                style={styles.deleteIcon}
-                type="ant"
-                name="minuscircle"
-                size={20}
-                color="#fff"
-              />
-            </Pressable>
+            <MinusButton
+              handleDelete={handleDelete}
+              item={item}
+              setEntries={setCatList}
+            />
           ) : (
-            <View style={{width: 40}} />
+            <View style={{width: 20}} />
           )}
-        </Animated.View>
+        </ViewAnimatedOpacity>
       )}
     </View>
   );

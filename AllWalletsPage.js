@@ -11,7 +11,12 @@ import {
 import styles, {smoothWidthChange, smoothChange} from './styles.js';
 import {Icon} from './Icon';
 import {getDBConnection, getItems, removeItem} from './db.js';
-import {UpperRightEditButton} from './components.js';
+import {
+  UpperRightEditButton,
+  ViewAnimatedOpacity,
+  MinusButton,
+  EditButton,
+} from './components.js';
 
 var db = getDBConnection();
 
@@ -94,45 +99,32 @@ export default function AllWalletsPage({navigation}) {
 
 function WalletItem({navigation, item}, editState, setWalletList, animOpac) {
   return (
-    <View style={[styles.row, styles.center]}>
+    <View style={[styles.row, styles.center, styles.pad10]}>
       {editState ? (
-        <Animated.View style={{opacity: animOpac}}>
-          <Pressable onPress={() => handleEdit(item, navigation)}>
-            <Icon
-              style={[styles.deleteIcon]}
-              type="ant"
-              name="edit"
-              size={20}
-              color="white"
-            />
-          </Pressable>
-        </Animated.View>
+        <ViewAnimatedOpacity animVal={animOpac}>
+          <EditButton
+            item={item}
+            handleEdit={handleEdit}
+            navigation={navigation}
+          />
+        </ViewAnimatedOpacity>
       ) : null}
       <View style={styles.item}>
         <Text style={styles.textBasic}>{item.title}</Text>
-        <Icon
-          type={item.icon_source}
-          name={item.icon_name}
-          size={30}
-          color="#fff"
-        />
+        <Icon type={item.icon_source} name={item.icon_name} />
       </View>
       {editState && (
-        <Animated.View style={{opacity: animOpac}}>
+        <ViewAnimatedOpacity animVal={animOpac}>
           {item.id != 1 ? (
-            <Pressable onPress={() => handleDelete(item, setWalletList)}>
-              <Icon
-                style={[styles.deleteIcon]}
-                type="ant"
-                name="minuscircle"
-                color="#fff"
-                size={20}
-              />
-            </Pressable>
+            <MinusButton
+              handleDelete={handleDelete}
+              item={item}
+              setEntries={setWalletList}
+            />
           ) : (
-            <View style={{width: 40}} />
+            <View style={{width: 20}} />
           )}
-        </Animated.View>
+        </ViewAnimatedOpacity>
       )}
     </View>
   );
