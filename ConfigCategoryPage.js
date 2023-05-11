@@ -1,23 +1,27 @@
 import React, {useState} from 'react';
-import {Text, View, Pressable, Alert} from 'react-native';
-import styles from './styles.js';
+import {Text, View, Pressable, Alert, Animated} from 'react-native';
+import styles, {smoothChange} from './styles.js';
 import {Row, Col, CustomTextInput} from './components.js';
 import {getDBConnection, editItem, addItem} from './db.js';
 import {Icon} from './Icon.js';
 import IconPicker from './IconPicker.js';
 
+const default_icon = {name: 'shopping-bag', source: 'feather'};
+
 var db = getDBConnection();
 
-export default function AddCategoryPage({navigation, route}) {
-  const id = route.params && route.params.id;
-  const [title, setTitle] = useState(id ? route.params.title : '');
+export default function ConfigCategory({navigation, route}) {
+  var item = Object.keys(route.params).includes('item')
+    ? route.params.item
+    : null;
+  const id = item && item.id;
+  const [title, setTitle] = useState(item ? item.title : '');
   const [icon, setIcon] = useState(
-    id
-      ? {name: route.params.icon_name, source: route.params.icon_source}
-      : {name: 'shopping-bag', source: 'feather'},
+    item ? {name: item.icon_name, source: item.icon_source} : default_icon,
   );
   const [modalVisible, setModalVisible] = useState(false);
-  const [styleState, setStyleState] = useState(0);
+
+  var diameterAnim = new Animated.Value(0);
 
   return (
     <View style={styles.inputPage}>
@@ -57,18 +61,24 @@ export default function AddCategoryPage({navigation, route}) {
           style={[
             styles.roundedBox,
             styles.black,
-            styleState == 1 && styles.buttonHover,
+            {flexDirection: 'column', justifyContent: 'center'},
           ]}
           onPress={() =>
-            handleSubmit(id, title, icon, setStyleState, navigation)
+            handleSubmit(id, title, icon, navigation, diameterAnim)
           }>
-          <Text
-            style={[
-              styles.buttonText,
-              styleState == 1 && styles.buttonHoverText,
-            ]}>
-            Submit {id ? '' : 'new'} Category
+          <Text style={[styles.buttonText]}>
+            Submit {item ? '' : 'new'} Category
           </Text>
+          <Animated.View
+            style={[
+              styles.buttonEffect,
+              {
+                width: diameterAnim,
+                height: diameterAnim,
+                borderRadius: diameterAnim,
+              },
+            ]}
+          />
         </Pressable>
       </View>
       <IconPicker
@@ -80,8 +90,7 @@ export default function AddCategoryPage({navigation, route}) {
   );
 }
 
-function handleSubmit(id, title, icon, styleSetter, navigation) {
-  styleSetter(1);
+function handleSubmit(id, title, icon, navigation, diameterAnim) {
   if (id) {
     editItem(
       {
@@ -100,19 +109,18 @@ function handleSubmit(id, title, icon, styleSetter, navigation) {
       'category',
     );
   }
-  Alert.alert(
-    'Success!',
-    id ? 'Entry successfully updated' : 'New entry successfully added',
-    [
-      {
-        text: 'OK',
-        onPress: () => {
-          styleSetter(0);
-          if (id) {
-            navigation.navigate('All Categories');
-          }
+  smoothChange(diameterAnim, 500, 200).start(({finished}) =>
+    Alert.alert(
+      'Success!',
+      id ? 'Entry successfully updated' : 'New entry successfully added',
+      [
+        {
+          text: 'OK',
+          onPress: () => {
+            navigation.goBack();
+          },
         },
-      },
-    ],
+      ],
+    ),
   );
 }

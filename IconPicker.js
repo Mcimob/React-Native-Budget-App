@@ -12,16 +12,16 @@ export default function IconPicker({modalVisible, setModalVisible, setIcon}) {
 
   return (
     <Modal isVisible={modalVisible} hasBackdrop={false}>
-      <View style={styles.modalView}>
+      <View style={[styles.modalView, styles.accentBorder]}>
         <Pressable
-          style={[styles.roundedBox, styles.black, styles.whiteBorder]}
+          style={[styles.roundedBox, styles.black, styles.accentBorder]}
           onPress={() => {
             setModalVisible(false);
           }}>
           <Text style={styles.buttonText}>Close Iconpicker</Text>
         </Pressable>
         <TextInput
-          style={[styles.roundedBox, styles.black, styles.whiteBorder]}
+          style={[styles.roundedBox, styles.black, styles.accentBorder]}
           placeholderTextColor="white"
           placeholder="Search..."
           onChangeText={newSearch =>

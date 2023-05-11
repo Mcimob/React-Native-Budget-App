@@ -16,7 +16,7 @@ export default function HomeScreen({navigation}) {
       />
       <Button
         title="Go to AllWallets Page"
-        onPress={() => navigation.navigate('ViewWallets')}
+        onPress={() => navigation.navigate('All Wallets')}
       />
     </View>
   );

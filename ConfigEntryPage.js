@@ -1,8 +1,7 @@
 import React, {useState} from 'react';
-import {Text, View, Button} from 'react-native';
-import {TextInput} from 'react-native-paper';
+import {Text, View} from 'react-native';
 import styles from './styles.js';
-import {Row, Col} from './components.js';
+import {Row, Col, CustomTextInput} from './components.js';
 
 export default function AddEntryPage({navigation}) {
   const [title, setTitle] = useState('');
@@ -16,14 +15,10 @@ export default function AddEntryPage({navigation}) {
             <Text style={styles.textBasic}>Enter a title:</Text>
           </Col>
           <Col>
-            <TextInput
-              style={styles.inputBox}
+            <CustomTextInput
               placeholder="A good title"
-              onChangeText={newTitle => setTitle(newTitle)}
-              defaultValue={title}
-              mode="flat"
-              activeUnderlineColor="blue"
-              underlineColor="lightgray"
+              setText={setTitle}
+              text={title}
             />
           </Col>
         </Row>
@@ -32,15 +27,11 @@ export default function AddEntryPage({navigation}) {
             <Text style={styles.textBasic}>Enter an Amount</Text>
           </Col>
           <Col>
-            <TextInput
-              style={styles.inputBox}
+            <CustomTextInput
               inputMode="numeric"
               placeHolder="Enter an amount"
-              onChnageText={newAmount => setAmount(newAmount)}
-              defaultValue={amount}
-              mode="flat"
-              activeUnderlineColor="blue"
-              underlineColor="lightgray"
+              setText={setAmount}
+              text={amount}
             />
           </Col>
         </Row>

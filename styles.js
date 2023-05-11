@@ -1,4 +1,39 @@
-import {StyleSheet} from 'react-native';
+import {StyleSheet, Animated, Easing} from 'react-native';
+
+const bright = '#43bdbf';
+const dark = '#236061';
+
+export const header_style = {
+  headerStyle: {
+    backgroundColor: 'black',
+    borderBottomColor: bright,
+    borderBottomWidth: 2,
+  },
+  headerTintColor: 'white',
+};
+
+export function smoothWidthChange(
+  event,
+  animWidth,
+  animX,
+  setWidth,
+  setX,
+  setBuildState,
+) {
+  setBuildState(true);
+  var {x, y, width, height} = event.nativeEvent.layout;
+
+  smoothChange(animWidth, width, 200).start(({finished}) => setWidth(width));
+  smoothChange(animX, x, 200).start(({finished}) => setX(x));
+}
+export function smoothChange(animVal, to, duration) {
+  return Animated.timing(animVal, {
+    toValue: to,
+    duration: duration,
+    useNativeDriver: false,
+    easing: Easing.linear,
+  });
+}
 
 export default styles = StyleSheet.create({
   inputPage: {
@@ -8,7 +43,9 @@ export default styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: 'black',
+    zIndex: -100,
+    elevation: -100,
   },
   row: {
     flexDirection: 'row',
@@ -18,7 +55,7 @@ export default styles = StyleSheet.create({
   },
   textBasic: {
     padding: 10,
-    color: 'black',
+    color: 'white',
   },
   buttonText: {
     padding: 10,
@@ -37,13 +74,18 @@ export default styles = StyleSheet.create({
     marginHorizontal: 'auto',
     width: 'auto',
     minWidth: 300,
+    backgroundColor: dark,
+    borderColor: bright,
+    borderWidth: 2,
+    borderRadius: 25,
+    paddingHorizontal: 10,
   },
   black: {
-    backgroundColor: 'black',
+    backgroundColor: '#121212',
     color: 'white',
   },
-  whiteBorder: {
-    borderColor: 'white',
+  accentBorder: {
+    borderColor: bright,
     borderWidth: 2,
   },
   '1col': {
@@ -82,23 +124,36 @@ export default styles = StyleSheet.create({
   roundedBox: {
     padding: 10,
     borderRadius: 10,
-    margin: 15,
+    margin: 5,
+    overflow: 'hidden',
   },
   iconList: {
     overflow: 'scroll',
   },
   itemList: {
     overflow: 'scroll',
-    width: '100%',
     padding: 20,
+  },
+  itemListBackground: {
+    position: 'absolute',
+    padding: 20,
+    backgroundColor: dark,
+    borderRadius: 25,
+    borderColor: bright,
+    borderWidth: 2,
+    elevation: -1,
+    zIndex: -1,
+    height: '100%',
   },
   item: {
     width: 200,
-    backgroundColor: '#eee',
+    backgroundColor: '#121212',
     borderRadius: 10,
     padding: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    borderColor: bright,
+    borderWidth: 2,
   },
 
   buttonHover: {
@@ -111,5 +166,35 @@ export default styles = StyleSheet.create({
   },
   deleteIcon: {
     padding: 10,
+  },
+  floatingButton: {
+    position: 'absolute',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#43bdbf',
+    bottom: 30,
+    right: 30,
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addButtonBar: {
+    backgroundColor: '#00f',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    bottom: 30,
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonEffect: {
+    position: 'absolute',
+    alignSelf: 'center',
+    backgroundColor: bright,
+    elevation: 1,
   },
 });

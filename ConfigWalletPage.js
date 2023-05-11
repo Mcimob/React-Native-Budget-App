@@ -1,24 +1,27 @@
 import React, {useState} from 'react';
-import {Text, View, Pressable, Alert} from 'react-native';
-import {TextInput} from 'react-native-paper';
-import styles from './styles.js';
-import {Row, Col, CustomTextInput} from './components';
-import IconPicker from './IconPicker';
-import {Icon} from './Icon';
+import {Text, View, Pressable, Alert, Animated} from 'react-native';
+import styles, {smoothChange} from './styles.js';
+import {Row, Col, CustomTextInput} from './components.js';
+import IconPicker from './IconPicker.js';
+import {Icon} from './Icon.js';
 import {getDBConnection, addItem, editItem} from './db.js';
 
 var db = getDBConnection();
 
-export default function AddWalletPage({navigation, route}) {
-  const id = route.params && route.params.id;
-  const [title, setTitle] = useState(id ? route.params.title : '');
+const default_icon = {name: 'wallet', source: 'ant'};
+
+export default function ConfigWalletPage({navigation, route}) {
+  var item = Object.keys(route.params).includes('item')
+    ? route.params.item
+    : null;
+  var id = item && item.id;
+  const [title, setTitle] = useState(item ? item.title : '');
   const [icon, setIcon] = useState(
-    id
-      ? {name: route.params.icon_name, source: route.params.icon_source}
-      : {name: 'wallet', source: 'ant'},
+    item ? {name: item.icon_name, source: item.icon_source} : default_icon,
   );
   const [modalVisible, setModalVisible] = useState(false);
-  const [styleState, setStyleState] = useState(0);
+
+  var diameterAnim = new Animated.Value(0);
 
   return (
     <View style={styles.inputPage}>
@@ -56,18 +59,24 @@ export default function AddWalletPage({navigation, route}) {
           style={[
             styles.roundedBox,
             styles.black,
-            styleState == 1 && styles.buttonHover,
+            {flexDirection: 'column', justifyContent: 'center'},
           ]}
           onPress={() =>
-            handleSubmit(id, title, icon, setStyleState, navigation)
+            handleSubmit(id, title, icon, navigation, diameterAnim)
           }>
-          <Text
-            style={[
-              styles.buttonText,
-              styleState == 1 && styles.buttonHoverText,
-            ]}>
+          <Text style={[styles.buttonText]}>
             Submit {id ? '' : 'new'} Wallet
           </Text>
+          <Animated.View
+            style={[
+              styles.buttonEffect,
+              {
+                width: diameterAnim,
+                height: diameterAnim,
+                borderRadius: diameterAnim,
+              },
+            ]}
+          />
         </Pressable>
       </View>
       <IconPicker
@@ -79,8 +88,7 @@ export default function AddWalletPage({navigation, route}) {
   );
 }
 
-function handleSubmit(id, title, icon, styleSetter, navigation) {
-  styleSetter(1);
+function handleSubmit(id, title, icon, navigation, diameterAnim) {
   if (id) {
     editItem(
       {
@@ -99,19 +107,18 @@ function handleSubmit(id, title, icon, styleSetter, navigation) {
       'wallet',
     );
   }
-  Alert.alert(
-    'Success!',
-    id ? 'Entry successfully updated' : 'New entry successfully added',
-    [
-      {
-        text: 'OK',
-        onPress: () => {
-          styleSetter(0);
-          if (id) {
-            navigation.navigate('All Wallets');
-          }
+  smoothChange(diameterAnim, 500, 200).start(({finished}) =>
+    Alert.alert(
+      'Success!',
+      id ? 'Entry successfully updated' : 'New entry successfully added',
+      [
+        {
+          text: 'OK',
+          onPress: () => {
+            navigation.goBack();
+          },
         },
-      },
-    ],
+      ],
+    ),
   );
 }

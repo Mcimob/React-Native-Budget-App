@@ -1,60 +1,115 @@
 import React, {useState, useEffect} from 'react';
-import {Text, View, FlatList, Pressable, Alert} from 'react-native';
-import styles from './styles.js';
+import {
+  Text,
+  View,
+  FlatList,
+  Pressable,
+  Alert,
+  Animated,
+  Easing,
+} from 'react-native';
+import styles, {smoothWidthChange} from './styles.js';
 import {Icon} from './Icon';
 import {getDBConnection, getItems, removeItem} from './db.js';
+import {UpperRightEditButton} from './components.js';
 
 var db = getDBConnection();
 
 export default function AllCategoriesPage({navigation}) {
   const [catList, setCatList] = useState([]);
   const [editState, setEditState] = useState(false);
+  const [buildState, setBuildState] = useState(false);
+
+  const [width, setWidth] = useState(0);
+  const [x, setX] = useState(0);
+  const [opac, setOpac] = useState(0);
+
+  var animWidth = new Animated.Value(width);
+  var animX = new Animated.Value(x);
+  var animOpac = new Animated.Value(opac);
+
+  useEffect(() => {
+    Animated.timing(animOpac, {
+      toValue: editState ? 1 : 0,
+      duration: 500,
+      useNativeDriver: true,
+      easing: Easing.linear,
+    }).start(({finished}) => setOpac(editState ? 1 : 0));
+  }, [editState]);
 
   useEffect(() => {
     const focusHandler = navigation.addListener('focus', () => {
       getItems(db, setCatList, 'category');
-      console.log(catList);
     });
     return focusHandler;
   }, [navigation, catList]);
 
   useEffect(() => {
     navigation.setOptions({
-      headerRight: () => EditButton(editState, setEditState),
+      headerRight: () => (
+        <UpperRightEditButton state={editState} setState={setEditState} />
+      ),
     });
   });
 
   return (
-    <View style={styles.inputPage}>
-      <View>
+    <View>
+      <View style={styles.inputPage}>
         <FlatList
+          onLayout={event =>
+            smoothWidthChange(
+              event,
+              animWidth,
+              animX,
+              setWidth,
+              setX,
+              setBuildState,
+            )
+          }
           extraData={catList}
           style={styles.itemList}
           data={catList}
           numColumns={1}
           keyExtractor={item => item.id}
           renderItem={({item}) =>
-            CategoryItem({item}, editState, setCatList, navigation)
+            CategoryItem({navigation, item}, editState, setCatList, animOpac)
           }
         />
+        <Animated.View
+          style={[
+            {
+              left: animX,
+              width: animWidth,
+              opacity: buildState ? 1 : 0,
+            },
+            styles.itemListBackground,
+          ]}
+        />
       </View>
+      <Pressable
+        style={styles.floatingButton}
+        onPress={() => navigation.navigate('ConfigCategory', {})}>
+        <Icon type="ant" name="plus" size={40} color="white" />
+      </Pressable>
     </View>
   );
 }
 
-function CategoryItem({item}, editState, setCatList, navigation) {
+function CategoryItem({navigation, item}, editState, setCatList, animOpac) {
   return (
     <View style={[styles.row, {justifyContent: 'flex-start'}]}>
       {editState && (
-        <Pressable onPress={() => handleEdit(item, navigation)}>
-          <Icon
-            style={styles.deleteIcon}
-            type="ant"
-            name="edit"
-            size={20}
-            color="#000"
-          />
-        </Pressable>
+        <Animated.View style={{opacity: animOpac}}>
+          <Pressable onPress={() => handleEdit(item, navigation)}>
+            <Icon
+              style={styles.deleteIcon}
+              type="ant"
+              name="edit"
+              size={20}
+              color="#fff"
+            />
+          </Pressable>
+        </Animated.View>
       )}
       <View style={styles.item}>
         <Text style={styles.textBasic}>{item.title}</Text>
@@ -62,19 +117,21 @@ function CategoryItem({item}, editState, setCatList, navigation) {
           type={item.icon_source}
           name={item.icon_name}
           size={30}
-          color="#000"
+          color="#fff"
         />
       </View>
       {editState && item.id != 1 && (
-        <Pressable onPress={() => handleDelete(item, setCatList)}>
-          <Icon
-            style={styles.deleteIcon}
-            type="ant"
-            name="minuscircle"
-            size={20}
-            color="#000"
-          />
-        </Pressable>
+        <Animated.View style={{opacity: animOpac}}>
+          <Pressable onPress={() => handleDelete(item, setCatList)}>
+            <Icon
+              style={styles.deleteIcon}
+              type="ant"
+              name="minuscircle"
+              size={20}
+              color="#fff"
+            />
+          </Pressable>
+        </Animated.View>
       )}
     </View>
   );
@@ -101,13 +158,5 @@ function handleDelete(item, setCatList) {
 }
 
 function handleEdit(item, navigation) {
-  navigation.navigate('AddPage', {screen: 'AddCatgory', params: item});
-}
-
-function EditButton(editState, setEditState) {
-  return (
-    <Pressable onPress={() => setEditState(!editState)}>
-      <Icon type="ant" name="edit" size={30} color="#000" />
-    </Pressable>
-  );
+  navigation.navigate('ConfigCategory', {item});
 }
