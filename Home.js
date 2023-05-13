@@ -1,5 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {FlatList, Text, Pressable, Animated, View, Alert} from 'react-native';
+import {
+  Text,
+  Pressable,
+  Animated,
+  View,
+  Alert,
+  SectionList,
+} from 'react-native';
+import Picker from '@ouroboros/react-native-picker';
 import {getDBConnection, createTables, getItems, removeItem} from './db';
 import styles, {smoothChange} from './styles';
 import {Icon} from './Icon';
@@ -24,6 +32,8 @@ export default function HomeScreen({navigation}) {
 
   const [toggleState, setToggleState] = useState(false);
   var togglePosition = new Animated.Value(toggleState ? 1 : 0);
+
+  const [sortBy, setSortBy] = useState('none');
 
   useEffect(() => {
     const focusHandler = navigation.addListener('focus', () => {
@@ -53,10 +63,6 @@ export default function HomeScreen({navigation}) {
       ),
     });
   });
-
-  /*useEffect(() => {
-    console.log('toggle');
-  }, [toggleState]);*/
 
   return (
     <View style={[styles.homePage]}>
@@ -95,74 +101,119 @@ export default function HomeScreen({navigation}) {
           <Icon type="feather" name="grid" color="white" />
         </Pressable>
       </View>
-      <Separator />
-      <View style={{height: '50%'}}>
-        <Animated.View
-          style={{
-            opacity: togglePosition.interpolate({
-              inputRange: [0, 0.5, 1],
-              outputRange: [0, 0, 1],
-            }),
-            zIndex: toggleState ? 1 : 0,
-            elevation: toggleState ? 1 : 0,
-            width: '100%',
-            height: '100%',
-          }}>
-          <FlatList
-            key="grid"
-            data={entries}
-            style={[styles.itemList, {width: '100%'}]}
-            numColumns={2}
-            columnWrapperStyle={{justifyContent: 'space-between'}}
-            renderItem={({item}) =>
-              GridEntryItem(
-                {navigation, item},
-                wallets,
-                categories,
-                editState,
-                setEntries,
-                toggleState,
-              )
-            }
-            ListFooterComponent={<View style={{height: 30}} />}
+      <View
+        style={[styles.row, styles.pad10, {justifyContent: 'space-between'}]}>
+        <View style={[styles.row, styles.center]}>
+          <Text style={[styles.textBasic]}>Sort by:</Text>
+          <Picker
+            onChanged={setSortBy}
+            options={[
+              {value: 'none', text: 'None'},
+              {value: 'wallet', text: 'Wallet'},
+              {value: 'category', text: 'Category'},
+            ]}
+            value={sortBy}
+            style={[
+              styles.roundedBox,
+              styles.accentBorder,
+              styles.black,
+              styles.pad10,
+              {width: 100},
+            ]}
           />
-        </Animated.View>
-        <Animated.View
-          style={[
-            {
-              position: 'absolute',
-              alignSelf: 'center',
-              zIndex: toggleState ? 0 : 1,
-              elevation: toggleState ? 0 : 1,
-              width: '100%',
-              height: '100%',
-            },
-            {
+        </View>
+      </View>
+      <Separator />
+      {entries && (
+        <View style={{height: '50%'}}>
+          <Animated.View
+            style={{
               opacity: togglePosition.interpolate({
                 inputRange: [0, 0.5, 1],
-                outputRange: [1, 0, 0],
+                outputRange: [0, 0, 1],
               }),
-            },
-          ]}>
-          <FlatList
-            key="list"
-            data={entries}
-            style={[styles.itemList, {width: '100%'}]}
-            numColumns={1}
-            renderItem={({item}) =>
-              EntryItem(
-                {navigation, item},
-                wallets,
-                categories,
-                editState,
-                setEntries,
-                toggleState,
-              )
-            }
-            ListFooterComponent={<View style={{height: 30}} />}
-          />
-        </Animated.View>
-      </View>
+              zIndex: toggleState ? 1 : 0,
+              elevation: toggleState ? 1 : 0,
+              width: '100%',
+              height: '100%',
+            }}>
+            <SectionList
+              extraData={[entries, sortBy]}
+              key="grid"
+              sections={groupEntries(entries, sortBy, true)}
+              style={[styles.itemList]}
+              renderItem={({item}) =>
+                GridEntryItemContainer(
+                  {navigation, item},
+                  wallets,
+                  categories,
+                  editState,
+                  setEntries,
+                  toggleState,
+                )
+              }
+              renderSectionHeader={({section: {title}}) => (
+                <SectionHeader
+                  list={
+                    sortBy == 'category'
+                      ? categories
+                      : sortBy == 'wallet'
+                      ? wallets
+                      : null
+                  }
+                  id={title}
+                />
+              )}
+              ListFooterComponent={<View style={{height: 30}} />}
+            />
+          </Animated.View>
+          <Animated.View
+            style={[
+              {
+                position: 'absolute',
+                alignSelf: 'center',
+                zIndex: toggleState ? 0 : 1,
+                elevation: toggleState ? 0 : 1,
+                width: '100%',
+                height: '100%',
+              },
+              {
+                opacity: togglePosition.interpolate({
+                  inputRange: [0, 0.5, 1],
+                  outputRange: [1, 0, 0],
+                }),
+              },
+            ]}>
+            <SectionList
+              key="list"
+              sections={groupEntries(entries, sortBy, false)}
+              renderItem={({item}) =>
+                EntryItem(
+                  {navigation, item},
+                  wallets,
+                  categories,
+                  editState,
+                  setEntries,
+                  toggleState,
+                )
+              }
+              ListFooterComponent={<View style={{height: 30}} />}
+              renderSectionHeader={({section: {title}}) => (
+                <SectionHeader
+                  list={
+                    sortBy == 'category'
+                      ? categories
+                      : sortBy == 'wallet'
+                      ? wallets
+                      : null
+                  }
+                  id={title}
+                />
+              )}
+            />
+          </Animated.View>
+        </View>
+      )}
       <Separator />
       <View style={[styles.item, {alignSelf: 'center'}]}>
         <Text style={styles.textBasic}>Total:</Text>
@@ -194,6 +245,9 @@ function EntryItem(
       )}
       <View style={[styles.item, {width: '80%'}]}>
         <Text style={[styles.textBasic]}>{item.title}</Text>
+        <Text style={[styles.textBasic, styles.greyedOutColor]}>
+          {item.dateAdded.split(' ')[0]}
+        </Text>
         <Text style={styles.textBasic}>CHF {item.amount}</Text>
       </View>
       {editState && (
@@ -210,7 +264,7 @@ function EntryItem(
   );
 }
 
-function GridEntryItem(
+function GridEntryItemContainer(
   {navigation, item},
   wallets,
   categories,
@@ -218,9 +272,58 @@ function GridEntryItem(
   setEntries,
   toggleState,
 ) {
-  let wallet = getItemById(wallets, item.wallet_id);
-  let category = getItemById(categories, item.category_id);
+  let wallet_0 = getItemById(wallets, item[0].wallet_id);
+  let wallet_1 = item[1] ? getItemById(wallets, item[1].wallet_id) : null;
+  let category_0 = getItemById(categories, item[0].category_id);
+  let category_1 = item[1]
+    ? getItemById(categories, item[0].category_id)
+    : null;
+  if (item[1]) {
+    return (
+      <View style={styles.row}>
+        <GridEntryItem
+          navigation={navigation}
+          item={item[0]}
+          wallet={wallet_0}
+          category={category_0}
+          editState={editState}
+          setEntries={setEntries}
+          toggleState={toggleState}
+        />
+        <GridEntryItem
+          navigation={navigation}
+          item={item[1]}
+          wallet={wallet_1}
+          category={category_1}
+          editState={editState}
+          setEntries={setEntries}
+          toggleState={toggleState}
+        />
+      </View>
+    );
+  }
+  return (
+    <GridEntryItem
+      navigation={navigation}
+      item={item[0]}
+      wallet={wallet_0}
+      category={category_0}
+      editState={editState}
+      setEntries={setEntries}
+      toggleState={toggleState}
+    />
+  );
+}
 
+function GridEntryItem({
+  navigation,
+  item,
+  wallet,
+  category,
+  editState,
+  setEntries,
+  toggleState,
+}) {
   return (
     <View
       style={[
@@ -232,9 +335,14 @@ function GridEntryItem(
       <View
         style={[
           styles.row,
-          {justifyContent: 'space-between', width: '90%', marginTop: 5},
+          {
+            justifyContent: 'space-between',
+            width: '100%',
+            marginTop: 5,
+            height: 10,
+          },
         ]}>
-        <View style={{opacity: editState ? 1 : 0}}>
+        <View style={[{opacity: editState ? 1 : 0}, styles.editButtonGrid]}>
           <EditButton
             handleEdit={handleEdit}
             item={item}
@@ -242,7 +350,7 @@ function GridEntryItem(
             disabled={!toggleState}
           />
         </View>
-        <View style={{opacity: editState ? 1 : 0}}>
+        <View style={[{opacity: editState ? 1 : 0}, styles.minusButtonGrid]}>
           <MinusButton
             handleDelete={handleDelete}
             item={item}
@@ -263,6 +371,33 @@ function GridEntryItem(
         )}
         <Text style={styles.textBasic}>CHF {item.amount}</Text>
       </View>
+      <View style={[styles.row, {justifyContent: 'flex-end', width: '100%'}]}>
+        <Text
+          style={[
+            styles.textBasic,
+            styles.greyedOutColor,
+            {paddingVertical: 0},
+          ]}>
+          {item.dateAdded.split(' ')[0]}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+function SectionHeader({list, id}) {
+  let title;
+  let item = null;
+  if (!list) {
+    title = id;
+  } else {
+    item = list.filter(e => e.id == parseInt(id))[0];
+    title = item.title;
+  }
+  return (
+    <View style={[styles.row, {justifyContent: 'space-between'}, styles.pad10]}>
+      <Text style={[styles.textBasic, styles.subTitle]}>{title}</Text>
+      {item && <Icon type={item.icon_source} name={item.icon_name} />}
     </View>
   );
 }
@@ -302,4 +437,80 @@ function getItemById(list, id) {
     return null;
   }
   return list.filter(item => item.id == id)[0];
+}
+
+function groupEntries(entries, sortBy, isGrid) {
+  let out = [];
+  if (sortBy == 'wallet') {
+    let dic = {};
+    for (let e of entries) {
+      if (!Object.keys(dic).includes(e.wallet_id.toString())) {
+        dic[e.wallet_id] = {title: e.wallet_id, data: []};
+      }
+      dic[e.wallet_id].data.push(e);
+    }
+    for (let key of Object.keys(dic)) {
+      out.push(dic[key]);
+    }
+  } else if (sortBy == 'category') {
+    let dic = {};
+    for (let e of entries) {
+      if (!Object.keys(dic).includes(e.category_id.toString())) {
+        dic[e.category_id] = {title: e.category_id, data: []};
+      }
+      dic[e.category_id].data.push(e);
+    }
+
+    for (let key of Object.keys(dic)) {
+      out.push(dic[key]);
+    }
+    //console.log(out);
+  } else if (sortBy == 'none') {
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    let dic = {};
+    for (let e of entries) {
+      let date = new Date(e.dateAdded);
+      let year_month = months[date.getMonth()] + ' ' + date.getFullYear();
+      if (!Object.keys(dic).includes(year_month)) {
+        dic[year_month] = {title: year_month, data: []};
+      }
+      dic[year_month].data.push(e);
+      console.log(dic);
+    }
+
+    for (let key of Object.keys(dic)) {
+      out.push(dic[key]);
+    }
+
+    //out = [{title: 'All', data: entries}];
+  }
+  if (isGrid) {
+    for (let group of out) {
+      group.data = bundleForRenderEntries(group.data);
+    }
+  }
+  //console.log(out);
+  return out;
+}
+
+function bundleForRenderEntries(entries) {
+  let out = [];
+
+  for (let i = 0; i < entries.length; i += 2) {
+    out.push([entries[i], i + 1 < entries.length ? entries[i + 1] : null]);
+  }
+  return out;
 }

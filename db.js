@@ -12,26 +12,27 @@ const tableNames = {
 
 export async function createTables(db) {
   const query_table_lookup =
-    "SELECT name FROM sqlite_master WHERE type='table' AND name='Wallets'";
+    "SELECT name FROM sqlite_master WHERE type='table' AND name='Entries'";
 
-  const query_entry = `CREATE TABLE IF NOT EXISTS Entries(
+  const query_drop_entries = 'DROP TABLE IF EXISTS Entries';
+  const query_drop_wallets = 'DROP TABLE IF EXISTS Wallets';
+  const query_drop_categories = 'DROP TABLE IF EXISTS Categories';
+
+  const query_entry = `CREATE TABLE Entries(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     amount INTEGER NOT NULL,
     wallet_id INTEGER NOT NULL,
-    category_id INTEGER NOT NULL
-
+    category_id INTEGER NOT NULL,
+    dateAdded TEXT DEFAULT CURRENT_TIMESTAMP
   )`;
-
-  const query_drop_entries = 'DROP TABLE Entries';
-  const query_drop_wallets = 'DROP TABLE Wallets';
-  const query_drop_categories = 'DROP TABLE Categories';
 
   const query_wallet = `CREATE TABLE Wallets(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     icon_name TEXT NOT NULL,
-    icon_source TEXT NOT NULL
+    icon_source TEXT NOT NULL,
+    dateAdded TEXT DEFAULT CURRENT_TIMESTAMP
 )`;
 
   const query_wallet_insert =
@@ -44,36 +45,45 @@ export async function createTables(db) {
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     icon_name TEXT NOT NULL,
-    icon_source TEXT NOT NULL
+    icon_source TEXT NOT NULL,
+    dateAdded TEXT DEFAULT CURRENT_TIMESTAMP
 )`;
 
   db.transaction(function (txn) {
-    txn.executeSql(query_table_lookup, [], function (tx, res) {
-      if (res.rows.length == 0) {
-        console.log('Creating Tables');
+    txn.executeSql(
+      query_table_lookup,
+      [],
+      function (tx, res) {
+        if (res.rows.length == 0) {
+          console.log('Creating Tables');
+          tx.executeSql(
+            query_drop_entries,
+            [],
+            () => {},
+            err => console.log(err),
+          );
+          tx.executeSql(query_drop_wallets);
+          tx.executeSql(query_drop_categories);
+          tx.executeSql(query_entry);
+          tx.executeSql(query_wallet);
+          tx.executeSql(query_category);
 
-        tx.executeSql(query_drop_entries);
-        tx.executeSql(query_drop_wallets);
-        tx.executeSql(query_drop_categories);
-
-        tx.executeSql(query_entry);
-        tx.executeSql(query_wallet);
-        tx.executeSql(query_category);
-
-        tx.executeSql(query_wallet_insert, [
-          1,
-          'Default Wallet',
-          'wallet',
-          'ant',
-        ]);
-        tx.executeSql(query_cat_insert, [
-          1,
-          'Default Category',
-          'shopping-bag',
-          'feather',
-        ]);
-      }
-    });
+          tx.executeSql(query_wallet_insert, [
+            1,
+            'Default Wallet',
+            'wallet',
+            'ant',
+          ]);
+          tx.executeSql(query_cat_insert, [
+            1,
+            'Default Category',
+            'shopping-bag',
+            'feather',
+          ]);
+        }
+      },
+      error => console.log(error),
+    );
   });
 }
 

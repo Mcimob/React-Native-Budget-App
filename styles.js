@@ -5,7 +5,7 @@ const dark = '#236061';
 
 export const header_style = {
   headerStyle: {
-    backgroundColor: 'black',
+    backgroundColor: '#121212',
     borderBottomColor: bright,
     borderBottomWidth: 2,
   },
@@ -173,8 +173,7 @@ export default styles = StyleSheet.create({
   buttonHoverText: {
     color: 'black',
   },
-  deleteIcon: {
-  },
+  deleteIcon: {},
   floatingButton: {
     position: 'absolute',
     width: 60,
@@ -238,5 +237,10 @@ export default styles = StyleSheet.create({
   },
   selfCenter: {
     alignSelf: 'center',
+  },
+  minusButtonGrid: {right: 10, position: 'absolute'},
+  editButtonGrid: {left: 10, position: 'absolute'},
+  greyedOutColor: {
+    color: '#999',
   },
 });
