@@ -17,6 +17,8 @@ import {
   MinusButton,
   EditButton,
   ViewAnimatedOpacity,
+  Row,
+  Col,
 } from './components';
 
 let db = getDBConnection();
@@ -34,6 +36,9 @@ export default function HomeScreen({navigation}) {
   var togglePosition = new Animated.Value(toggleState ? 1 : 0);
 
   const [sortBy, setSortBy] = useState('none');
+
+  const [filterMenuVisible, setFilterMenuVisible] = useState(false);
+  var filterMenuHeight = new Animated.Value(filterMenuVisible ? 200 : 0);
 
   useEffect(() => {
     const focusHandler = navigation.addListener('focus', () => {
@@ -122,7 +127,41 @@ export default function HomeScreen({navigation}) {
             ]}
           />
         </View>
+        <View style={[styles.row, styles.center]}>
+          <Text style={[styles.textBasic]}>Filter:</Text>
+          <Pressable
+            onPress={() => {
+              handleFilterMenuToggle(
+                filterMenuVisible,
+                setFilterMenuVisible,
+                filterMenuHeight,
+              );
+            }}>
+            <Icon type="ant" name="filter" />
+          </Pressable>
+        </View>
       </View>
+      <Separator />
+      <Animated.View
+        style={[
+          {
+            height: filterMenuHeight,
+            width: '100%',
+          },
+        ]}>
+        <Row>
+          <Col>
+            <Text style={styles.textBasic}>Category</Text>
+          </Col>
+          <Col>
+            <Text style={styles.textBasic}>Wallet</Text>
+          </Col>
+          <Col>
+            <Text style={styles.textBasic}>Date</Text>
+            
+          </Col>
+        </Row>
+      </Animated.View>
       <Separator />
       {entries && (
         <View style={{height: '50%'}}>
@@ -426,6 +465,14 @@ function handleDelete(item, setter) {
   );
 }
 
+function handleFilterMenuToggle(toggleState, setToggleState, filterMenuHeight) {
+  smoothChange(filterMenuHeight, toggleState ? 0 : 200, 200).start(
+    ({finished}) => {
+      setToggleState(!toggleState);
+    },
+  );
+}
+
 function handleToggle(toggleState, setToggleState, togglePosition) {
   smoothChange(togglePosition, toggleState ? 0 : 1, 500).start(({finished}) => {
     setToggleState(!toggleState);
@@ -464,7 +511,6 @@ function groupEntries(entries, sortBy, isGrid) {
     for (let key of Object.keys(dic)) {
       out.push(dic[key]);
     }
-    //console.log(out);
   } else if (sortBy == 'none') {
     const months = [
       'January',
@@ -488,21 +534,17 @@ function groupEntries(entries, sortBy, isGrid) {
         dic[year_month] = {title: year_month, data: []};
       }
       dic[year_month].data.push(e);
-      console.log(dic);
     }
 
     for (let key of Object.keys(dic)) {
       out.push(dic[key]);
     }
-
-    //out = [{title: 'All', data: entries}];
   }
   if (isGrid) {
     for (let group of out) {
       group.data = bundleForRenderEntries(group.data);
     }
   }
-  //console.log(out);
   return out;
 }
 
