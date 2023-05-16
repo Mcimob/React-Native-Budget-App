@@ -44,8 +44,6 @@ export default styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'black',
-    zIndex: -100,
-    elevation: -100,
   },
   row: {
     flexDirection: 'row',
@@ -76,7 +74,7 @@ export default styles = StyleSheet.create({
   grid2: {
     flex: 4,
     marginHorizontal: 'auto',
-    width: 'auto',
+    width: '90%',
     minWidth: 300,
     backgroundColor: dark,
     borderColor: bright,

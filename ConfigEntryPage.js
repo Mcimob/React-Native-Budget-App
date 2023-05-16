@@ -1,10 +1,12 @@
 import React, {useState, useEffect} from 'react';
 import {Text, View, Pressable, FlatList, Animated, Alert} from 'react-native';
 import Modal from 'react-native-modal';
+import DatePicker from 'react-native-date-picker';
 import styles, {smoothChange} from './styles.js';
 import {Row, Col, CustomTextInput, Separator} from './components.js';
 import {Icon} from './Icon.js';
 import {getDBConnection, getItem, getItems, editItem, addItem} from './db.js';
+import {dateToSqliteString, dateTimeToDate} from './utils';
 
 var db = getDBConnection();
 
@@ -19,9 +21,13 @@ export default function AddEntryPage({navigation, route}) {
   const [amount, setAmount] = useState(item ? item.amount.toString() : '0');
   const [wallet, setWallet] = useState(null);
   const [category, setCategory] = useState(null);
+  const [date, setDate] = useState(
+    item ? new Date(item.dateAdded) : new Date(),
+  );
 
   const [walletModalVisible, setWalletModalVisible] = useState(false);
   const [categoryModalVisible, setCategoryModalVisible] = useState(false);
+  const [dateModalVisible, setDateModalVisible] = useState(false);
 
   var diameterAnim = new Animated.Value(0);
 
@@ -104,6 +110,29 @@ export default function AddEntryPage({navigation, route}) {
             )}
           </Col>
         </Row>
+        <Row>
+          <Col>
+            <Text style={styles.textBasic}>Choose a Date (optional)</Text>
+          </Col>
+          <Col>
+            <View
+              style={[
+                styles.row,
+                styles.roundedBox,
+                styles.accentBorder,
+                styles.black,
+                styles.center,
+                {justifyContent: 'space-between'},
+              ]}>
+              <Text style={[styles.textBasic, {padding: 0}]}>
+                {dateTimeToDate(date)}
+              </Text>
+              <Pressable onPress={() => setDateModalVisible(true)}>
+                <Icon type="ant" name="calendar" />
+              </Pressable>
+            </View>
+          </Col>
+        </Row>
         <Pressable
           style={[
             styles.roundedBox,
@@ -117,6 +146,7 @@ export default function AddEntryPage({navigation, route}) {
               amount,
               wallet,
               category,
+              date,
               navigation,
               diameterAnim,
             )
@@ -149,6 +179,18 @@ export default function AddEntryPage({navigation, route}) {
         setter={setCategory}
         modalVisible={categoryModalVisible}
         setModalVisible={setCategoryModalVisible}
+      />
+      <DatePicker
+        modal
+        mode="date"
+        open={dateModalVisible}
+        date={date}
+        onConfirm={d => {
+          setDateModalVisible(false);
+          setDate(d);
+        }}
+        onCancel={() => setDateModalVisible(false)}
+        maximumDate={new Date()}
       />
     </View>
   );
@@ -232,6 +274,7 @@ function handleSubmit(
   amount,
   wallet,
   category,
+  date,
   navigation,
   diameterAnim,
 ) {
@@ -243,6 +286,7 @@ function handleSubmit(
         amount: amount,
         wallet_id: wallet.id,
         category_id: category.id,
+        dateAdded: dateToSqliteString(date),
       },
       db,
       'entry',
@@ -254,6 +298,7 @@ function handleSubmit(
         amount: amount,
         wallet_id: wallet.id,
         category_id: category.id,
+        dateAdded: dateToSqliteString(date),
       },
       db,
       'entry',
