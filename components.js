@@ -26,7 +26,7 @@ export function CustomTextInput({placeholder, text, setText, ...props}) {
 
 export function UpperRightEditButton({state, setState}) {
   return (
-    <Pressable onPress={() => setState(!state)}>
+    <Pressable onPress={() => setState(!state)} style={styles.pad10}>
       <Icon type="ant" name="edit" size={30} color="#fff" />
     </Pressable>
   );
