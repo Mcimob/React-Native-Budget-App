@@ -34,8 +34,8 @@ export default function ItemDisplay({
           extraData={[entries, sortBy, categoriesSelected]}
           key="grid"
           sections={groupEntries(entries, sortBy, true, {
-            categories: categoriesSelected,
-            wallets: walletsSelected,
+            category: categoriesSelected,
+            wallet: walletsSelected,
           })}
           style={[styles.itemList]}
           renderItem={({item}) =>
@@ -84,8 +84,8 @@ export default function ItemDisplay({
           extraData={[entries, sortBy, categoriesSelected]}
           key="list"
           sections={groupEntries(entries, sortBy, false, {
-            categories: categoriesSelected,
-            wallets: walletsSelected,
+            category: categoriesSelected,
+            wallet: walletsSelected,
           })}
           renderItem={({item}) =>
             EntryItem(
@@ -133,54 +133,47 @@ function SectionHeader({list, id}) {
   );
 }
 
-function groupEntries(entries, sortBy, isGrid, filters) {
+function filterEntriesBy(entries, filters) {
   let filteredEntries = entries;
-
-  if (filters.categories.length != 0) {
-    if (new Set(filters.categories.map(x => x.selected)).size != 1) {
-      let categoryToSelected = {};
-      filters.categories.forEach(x => (categoryToSelected[x.id] = x.selected));
-      filteredEntries = entries.filter(
-        (item, index) => categoryToSelected[item.category_id],
-      );
+  ['wallet', 'category'].forEach(itemType => {
+    let itemFilters = filters[itemType];
+    if (itemFilters.length != 0) {
+      if (new Set(itemFilters.map(x => x.selected)).size != 1) {
+        let entryToSelected = {};
+        itemFilters.forEach(x => (entryToSelected[x.id] = x.selected));
+        filteredEntries = entries.filter(
+          (item, index) => entryToSelected[item[itemType + '_id']],
+        );
+      }
     }
-  }
+  });
+  return filteredEntries;
+}
 
-  if (filters.wallets.length != 0) {
-    if (new Set(filters.wallets.map(x => x.selected)).size != 1) {
-      let walletToSelected = {};
-      filters.wallets.forEach(x => (walletToSelected[x.id] = x.selected));
-      filteredEntries = entries.filter(
-        (item, index) => walletToSelected[item.category_id],
-      );
+function sortEntriesBy(entries, sortBy) {
+  let out = [];
+  let dic = {};
+  for (let e of entries) {
+    if (!Object.keys(dic).includes(e.wallet_id.toString())) {
+      dic[e[sortBy + '_id']] = {title: e[sortBy + '_id'], data: []};
     }
+    dic[e[sortBy + '_id']].data.push(e);
   }
+  for (let key of Object.keys(dic)) {
+    out.push(dic[key]);
+  }
+  return out;
+}
 
+function groupEntries(entries, sortBy, isGrid, filters) {
+  if (!entries) {
+    return [];
+  }
+  let filteredEntries = filterEntriesBy(entries, filters);
 
   let out = [];
-  if (sortBy == 'wallet') {
-    let dic = {};
-    for (let e of filteredEntries) {
-      if (!Object.keys(dic).includes(e.wallet_id.toString())) {
-        dic[e.wallet_id] = {title: e.wallet_id, data: []};
-      }
-      dic[e.wallet_id].data.push(e);
-    }
-    for (let key of Object.keys(dic)) {
-      out.push(dic[key]);
-    }
-  } else if (sortBy == 'category') {
-    let dic = {};
-    for (let e of filteredEntries) {
-      if (!Object.keys(dic).includes(e.category_id.toString())) {
-        dic[e.category_id] = {title: e.category_id, data: []};
-      }
-      dic[e.category_id].data.push(e);
-    }
-
-    for (let key of Object.keys(dic)) {
-      out.push(dic[key]);
-    }
+  if (['wallet', 'category'].includes(sortBy)) {
+    out = sortEntriesBy(filteredEntries, sortBy);
   } else if (sortBy == 'none') {
     const months = [
       'January',
