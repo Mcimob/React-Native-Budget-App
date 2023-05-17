@@ -36,9 +36,9 @@ export function Separator() {
   return <View style={{height: 1, width: '100%', backgroundColor: 'white'}} />;
 }
 
-export function MinusButton({handleDelete, item, setEntries, ...props}) {
+export function MinusButton({handleDelete, item, setEntries, db, ...props}) {
   return (
-    <Pressable onPress={() => handleDelete(item, setEntries)} {...props}>
+    <Pressable onPress={() => handleDelete(item, setEntries, db)} {...props}>
       <Icon
         style={styles.deleteIcon}
         type="ant"

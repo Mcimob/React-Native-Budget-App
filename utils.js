@@ -17,3 +17,10 @@ export function dateToSqliteString(date) {
 export function dateTimeToDate(date) {
   return dateToSqliteString(date).split(' ')[0];
 }
+
+export function getItemById(list, id) {
+  if (!list) {
+    return null;
+  }
+  return list.filter(item => item.id == id)[0];
+}
