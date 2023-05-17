@@ -37,7 +37,6 @@ export default function MainPage({navigation}) {
             <Icon type={iconSource} name={iconName} size={20} color="black" />
           );
         },
-        unmountOnBlur: true,
       })}>
       <Tab.Screen name="Home" component={HomeScreen} options={header_style} />
       <Tab.Screen

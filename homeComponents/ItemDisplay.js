@@ -14,6 +14,8 @@ export default function ItemDisplay({
   categories,
   editState,
   setEntries,
+  categoriesSelected,
+  walletsSelected,
 }) {
   return (
     <View style={{height: '50%'}}>
@@ -29,9 +31,12 @@ export default function ItemDisplay({
           height: '100%',
         }}>
         <SectionList
-          extraData={[entries, sortBy]}
+          extraData={[entries, sortBy, categoriesSelected]}
           key="grid"
-          sections={groupEntries(entries, sortBy, true)}
+          sections={groupEntries(entries, sortBy, true, {
+            categories: categoriesSelected,
+            wallets: walletsSelected,
+          })}
           style={[styles.itemList]}
           renderItem={({item}) =>
             GridEntryItemContainer(
@@ -76,8 +81,12 @@ export default function ItemDisplay({
           },
         ]}>
         <SectionList
+          extraData={[entries, sortBy, categoriesSelected]}
           key="list"
-          sections={groupEntries(entries, sortBy, false)}
+          sections={groupEntries(entries, sortBy, false, {
+            categories: categoriesSelected,
+            wallets: walletsSelected,
+          })}
           renderItem={({item}) =>
             EntryItem(
               {navigation, item},
@@ -124,11 +133,34 @@ function SectionHeader({list, id}) {
   );
 }
 
-function groupEntries(entries, sortBy, isGrid) {
+function groupEntries(entries, sortBy, isGrid, filters) {
+  let filteredEntries = entries;
+
+  if (filters.categories.length != 0) {
+    if (new Set(filters.categories.map(x => x.selected)).size != 1) {
+      let categoryToSelected = {};
+      filters.categories.forEach(x => (categoryToSelected[x.id] = x.selected));
+      filteredEntries = entries.filter(
+        (item, index) => categoryToSelected[item.category_id],
+      );
+    }
+  }
+
+  if (filters.wallets.length != 0) {
+    if (new Set(filters.wallets.map(x => x.selected)).size != 1) {
+      let walletToSelected = {};
+      filters.wallets.forEach(x => (walletToSelected[x.id] = x.selected));
+      filteredEntries = entries.filter(
+        (item, index) => walletToSelected[item.category_id],
+      );
+    }
+  }
+
+
   let out = [];
   if (sortBy == 'wallet') {
     let dic = {};
-    for (let e of entries) {
+    for (let e of filteredEntries) {
       if (!Object.keys(dic).includes(e.wallet_id.toString())) {
         dic[e.wallet_id] = {title: e.wallet_id, data: []};
       }
@@ -139,7 +171,7 @@ function groupEntries(entries, sortBy, isGrid) {
     }
   } else if (sortBy == 'category') {
     let dic = {};
-    for (let e of entries) {
+    for (let e of filteredEntries) {
       if (!Object.keys(dic).includes(e.category_id.toString())) {
         dic[e.category_id] = {title: e.category_id, data: []};
       }
@@ -165,7 +197,7 @@ function groupEntries(entries, sortBy, isGrid) {
       'December',
     ];
     let dic = {};
-    for (let e of entries) {
+    for (let e of filteredEntries) {
       let date = new Date(e.dateAdded);
       let year_month = months[date.getMonth()] + ' ' + date.getFullYear();
       if (!Object.keys(dic).includes(year_month)) {

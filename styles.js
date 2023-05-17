@@ -1,7 +1,7 @@
 import {StyleSheet, Animated, Easing} from 'react-native';
 
-const bright = '#43bdbf';
-const dark = '#236061';
+export const bright = '#43bdbf';
+export const dark = '#236061';
 
 export const header_style = {
   headerStyle: {
@@ -240,5 +240,19 @@ export default styles = StyleSheet.create({
   editButtonGrid: {left: 10, position: 'absolute'},
   greyedOutColor: {
     color: '#999',
+  },
+  filterBackground: {
+    height: 40,
+    width: 40,
+    borderRadius: 20,
+    position: 'absolute',
+    left: -5,
+    top: -5,
+    backgroundColor: bright,
+  },
+  filterItem: {
+    justifyContent: 'space-between',
+    margin: 5,
+    padding: 10,
   },
 });

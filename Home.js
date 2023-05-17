@@ -23,6 +23,9 @@ export default function HomeScreen({navigation}) {
 
   const [sortBy, setSortBy] = useState('none');
 
+  const [categoriesSelected, setCategoriesSelected] = useState([]);
+  const [walletsSelected, setWalletsSelected] = useState([]);
+
   useEffect(() => {
     const focusHandler = navigation.addListener('focus', () => {
       getItems(db, setEntries, 'entry');
@@ -39,6 +42,18 @@ export default function HomeScreen({navigation}) {
       setTotal(sum);
     }
   }, [entries]);
+
+  useEffect(() => {
+    initializeSelectedArray(
+      categoriesSelected,
+      setCategoriesSelected,
+      categories,
+    );
+  }, [categories]);
+
+  useEffect(() => {
+    initializeSelectedArray(walletsSelected, setWalletsSelected, wallets);
+  }, [wallets]);
 
   useEffect(() => {
     createTables(db);
@@ -60,7 +75,16 @@ export default function HomeScreen({navigation}) {
         toggleState={toggleState}
         setToggleState={setToggleState}
       />
-      <SortAndFilterBar sortBy={sortBy} setSortBy={setSortBy} />
+      <SortAndFilterBar
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        categories={categories}
+        wallets={wallets}
+        categoriesSelected={categoriesSelected}
+        setCategoriesSelected={setCategoriesSelected}
+        walletsSelected={walletsSelected}
+        setWalletsSelected={setWalletsSelected}
+      />
       <Separator />
       {entries && (
         <ItemDisplay
@@ -73,6 +97,8 @@ export default function HomeScreen({navigation}) {
           categories={categories}
           editState={editState}
           setEntries={setEntries}
+          categoriesSelected={categoriesSelected}
+          walletsSelected={walletsSelected}
         />
       )}
       <Separator />
@@ -88,4 +114,26 @@ function handleToggle(toggleState, setToggleState, togglePosition) {
   smoothChange(togglePosition, toggleState ? 0 : 1, 500).start(({finished}) => {
     setToggleState(!toggleState);
   });
+}
+
+function initializeSelectedArray(selected, setSelected, items) {
+  let idsUsed = selected.map(item => item.id);
+  let newSelected = [];
+  if (items) {
+    for (let i = 0; i < items.length; i++) {
+      let indexInArray = idsUsed.find(x => x == items[i].id);
+      if (indexInArray) {
+        newSelected.push({
+          id: items[i].id,
+          selected: selected[indexInArray],
+        });
+      } else {
+        newSelected.push({
+          id: items[i].id,
+          selected: false,
+        });
+      }
+    }
+  }
+  setSelected(newSelected);
 }
