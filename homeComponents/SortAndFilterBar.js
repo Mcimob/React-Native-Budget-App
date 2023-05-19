@@ -1,6 +1,14 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, Pressable, Animated, FlatList} from 'react-native';
+import {
+  View,
+  Text,
+  Pressable,
+  Animated,
+  FlatList,
+  ScrollView,
+} from 'react-native';
 import Picker from '@ouroboros/react-native-picker';
+import Switch from 'react-native-switch-toggles';
 
 import styles, {smoothChange, dark} from '../styles';
 import {Icon} from '../Icon';
@@ -15,6 +23,10 @@ export default function SortAndFilterBar({
   setCategoriesSelected,
   walletsSelected,
   setWalletsSelected,
+  excludeCategories,
+  setExcludecategories,
+  excludeWallets,
+  setExcludeWallets,
 }) {
   const [filterMenuVisible, setFilterMenuVisible] = useState(false);
 
@@ -71,6 +83,10 @@ export default function SortAndFilterBar({
         setCategoriesSelected={setCategoriesSelected}
         walletsSelected={walletsSelected}
         setWalletsSelected={setWalletsSelected}
+        excludeCategories={excludeCategories}
+        setExcludecategories={setExcludecategories}
+        excludeWallets={excludeWallets}
+        setExcludeWallets={setExcludeWallets}
       />
     </>
   );
@@ -84,51 +100,86 @@ function FilterMenu({
   setCategoriesSelected,
   walletsSelected,
   setWalletsSelected,
+  excludeCategories,
+  setExcludecategories,
+  excludeWallets,
+  setExcludeWallets,
 }) {
   return (
     <Animated.View
-      style={[
-        {
-          height: togglePosition.interpolate({
-            inputRange: [0, 1],
-            outputRange: [0, 200],
-          }),
-        },
-      ]}>
-      <Row>
-        <Col>
-          <Text style={styles.textBasic}>Category</Text>
-          <FlatList
-            data={categories}
-            renderItem={({item, index}) => (
-              <FilterItem
-                item={item}
-                index={index}
-                currentlySelected={categoriesSelected}
-                setCurrentlySelected={setCategoriesSelected}
-              />
-            )}
-          />
-        </Col>
-        <Col>
-          <Text style={styles.textBasic}>Wallet</Text>
-          <FlatList
-            data={wallets}
-            renderItem={({item, index}) => (
-              <FilterItem
-                item={item}
-                index={index}
-                currentlySelected={walletsSelected}
-                setCurrentlySelected={setWalletsSelected}
-              />
-            )}
-          />
-        </Col>
-        <Col>
-          <Text style={styles.textBasic}>Date</Text>
-        </Col>
-      </Row>
+      style={{
+        height: togglePosition.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, 200],
+        }),
+      }}>
+      <ScrollView>
+        <Row>
+          <Col>
+            <Text style={styles.textBasic}>Category</Text>
+
+            <ExcludeSwitch
+              exclude={excludeCategories}
+              setExclude={setExcludecategories}
+            />
+            <FlatList
+              data={categories}
+              renderItem={({item, index}) => (
+                <FilterItem
+                  item={item}
+                  index={index}
+                  currentlySelected={categoriesSelected}
+                  setCurrentlySelected={setCategoriesSelected}
+                  exclude={excludeCategories}
+                />
+              )}
+            />
+          </Col>
+          <Col>
+            <Text style={styles.textBasic}>Wallet</Text>
+            <ExcludeSwitch
+              exclude={excludeWallets}
+              setExclude={setExcludeWallets}
+            />
+            <FlatList
+              data={wallets}
+              renderItem={({item, index}) => (
+                <FilterItem
+                  item={item}
+                  index={index}
+                  currentlySelected={walletsSelected}
+                  setCurrentlySelected={setWalletsSelected}
+                  exclude={excludeWallets}
+                />
+              )}
+            />
+          </Col>
+          <Col>
+            <Text style={styles.textBasic}>Date</Text>
+          </Col>
+        </Row>
+      </ScrollView>
     </Animated.View>
+  );
+}
+
+function ExcludeSwitch({exclude, setExclude}) {
+  return (
+    <View style={{margin: 5}}>
+      <Switch
+        size={40}
+        value={exclude}
+        onChange={value => setExclude(value)}
+        activeTrackColor="tomato"
+        inactiveTrackColor={dark}
+        renderOffIndicator={() => (
+          <Text style={[styles.textBasic, {padding: 0}]}>Incl.</Text>
+        )}
+        renderOnIndicator={() => (
+          <Text style={[styles.textBasic, {padding: 0}]}>Excl.</Text>
+        )}
+      />
+    </View>
   );
 }
 
@@ -140,8 +191,18 @@ function handleFilterMenuToggle(toggleState, setToggleState, filterMenuHeight) {
   );
 }
 
-function FilterItem({item, index, currentlySelected, setCurrentlySelected}) {
+function FilterItem({
+  item,
+  index,
+  currentlySelected,
+  setCurrentlySelected,
+  exclude,
+}) {
   const [animColor, setAnimColor] = useState(
+    new Animated.Value(exclude ? 1 : 0),
+  );
+
+  const [bgColor, setBgColor] = useState(
     new Animated.Value(
       index < currentlySelected.length && currentlySelected[index].selected
         ? 1
@@ -152,12 +213,16 @@ function FilterItem({item, index, currentlySelected, setCurrentlySelected}) {
   useEffect(() => {
     if (index < currentlySelected.length) {
       smoothChange(
-        animColor,
+        bgColor,
         currentlySelected[index].selected ? 1 : 0,
         200,
       ).start();
     }
   }, [currentlySelected]);
+
+  useEffect(() => {
+    smoothChange(animColor, exclude ? 1 : 0, 200).start();
+  }, [exclude]);
 
   return (
     <Pressable
@@ -173,24 +238,28 @@ function FilterItem({item, index, currentlySelected, setCurrentlySelected}) {
         setCurrentlySelected(newSelected);
       }}>
       <Animated.View
-        style={[
-          styles.row,
-          styles.center,
-          styles.filterItem,
-          styles.accentBorder,
-          {
-            backgroundColor: animColor.interpolate({
-              inputRange: [0, 1],
-              outputRange: ['#121212', dark],
-            }),
-          },
-        ]}>
-        <View style={{width: '80%'}}>
+        style={{
+          backgroundColor: animColor.interpolate({
+            inputRange: [0, 1],
+            outputRange: [dark, 'tomato'],
+          }),
+          margin: 5,
+        }}>
+        <Animated.View
+          style={[
+            styles.row,
+            styles.center,
+            styles.pad10,
+            styles.accentBorder,
+            {
+              backgroundColor: bgColor.interpolate({
+                inputRange: [0, 1],
+                outputRange: ['#121212ff', '#12121200'],
+              }),
+            },
+          ]}>
           <Text style={[styles.textBasic, {padding: 0}]}>{item.title}</Text>
-        </View>
-        <Pressable>
-          <Icon type="entypo" name="cross" />
-        </Pressable>
+        </Animated.View>
       </Animated.View>
     </Pressable>
   );

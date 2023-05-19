@@ -250,9 +250,4 @@ export default styles = StyleSheet.create({
     top: -5,
     backgroundColor: bright,
   },
-  filterItem: {
-    justifyContent: 'space-between',
-    margin: 5,
-    padding: 10,
-  },
 });

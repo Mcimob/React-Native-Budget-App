@@ -26,6 +26,9 @@ export default function HomeScreen({navigation}) {
   const [categoriesSelected, setCategoriesSelected] = useState([]);
   const [walletsSelected, setWalletsSelected] = useState([]);
 
+  const [excludeCategories, setExcludecategories] = useState(false);
+  const [excludeWallets, setExcludeWallets] = useState(false);
+
   useEffect(() => {
     const focusHandler = navigation.addListener('focus', () => {
       getItems(db, setEntries, 'entry');
@@ -84,6 +87,10 @@ export default function HomeScreen({navigation}) {
         setCategoriesSelected={setCategoriesSelected}
         walletsSelected={walletsSelected}
         setWalletsSelected={setWalletsSelected}
+        excludeCategories={excludeCategories}
+        excludeWallets={excludeWallets}
+        setExcludecategories={setExcludecategories}
+        setExcludeWallets={setExcludeWallets}
       />
       <Separator />
       {entries && (
@@ -99,6 +106,8 @@ export default function HomeScreen({navigation}) {
           setEntries={setEntries}
           categoriesSelected={categoriesSelected}
           walletsSelected={walletsSelected}
+          categoriesExcluded={excludeCategories}
+          walletsExcluded={excludeWallets}
         />
       )}
       <Separator />

@@ -16,6 +16,8 @@ export default function ItemDisplay({
   setEntries,
   categoriesSelected,
   walletsSelected,
+  categoriesExcluded,
+  walletsExcluded,
 }) {
   return (
     <View style={{height: '50%'}}>
@@ -31,12 +33,21 @@ export default function ItemDisplay({
           height: '100%',
         }}>
         <SectionList
-          extraData={[entries, sortBy, categoriesSelected]}
+          extraData={[entries, sortBy, categoriesSelected, walletsSelected]}
           key="grid"
-          sections={groupEntries(entries, sortBy, true, {
-            category: categoriesSelected,
-            wallet: walletsSelected,
-          })}
+          sections={groupEntries(
+            entries,
+            sortBy,
+            true,
+            {
+              category: categoriesSelected,
+              wallet: walletsSelected,
+            },
+            {
+              category: categoriesExcluded,
+              wallet: walletsExcluded,
+            },
+          )}
           style={[styles.itemList]}
           renderItem={({item}) =>
             GridEntryItemContainer(
@@ -81,12 +92,21 @@ export default function ItemDisplay({
           },
         ]}>
         <SectionList
-          extraData={[entries, sortBy, categoriesSelected]}
+          extraData={[entries, sortBy, categoriesSelected, walletsSelected]}
           key="list"
-          sections={groupEntries(entries, sortBy, false, {
-            category: categoriesSelected,
-            wallet: walletsSelected,
-          })}
+          sections={groupEntries(
+            entries,
+            sortBy,
+            false,
+            {
+              category: categoriesSelected,
+              wallet: walletsSelected,
+            },
+            {
+              category: categoriesExcluded,
+              wallet: walletsExcluded,
+            },
+          )}
           renderItem={({item}) =>
             EntryItem(
               {navigation, item},
@@ -133,7 +153,7 @@ function SectionHeader({list, id}) {
   );
 }
 
-function filterEntriesBy(entries, filters) {
+function filterEntriesBy(entries, filters, exclusions) {
   let filteredEntries = entries;
   ['wallet', 'category'].forEach(itemType => {
     let itemFilters = filters[itemType];
@@ -141,8 +161,11 @@ function filterEntriesBy(entries, filters) {
       if (new Set(itemFilters.map(x => x.selected)).size != 1) {
         let entryToSelected = {};
         itemFilters.forEach(x => (entryToSelected[x.id] = x.selected));
-        filteredEntries = entries.filter(
-          (item, index) => entryToSelected[item[itemType + '_id']],
+        let exclusionStatus = exclusions[itemType];
+        filteredEntries = filteredEntries.filter((item, index) =>
+          entryToSelected[item[itemType + '_id']]
+            ? !exclusionStatus
+            : exclusionStatus,
         );
       }
     }
@@ -165,11 +188,11 @@ function sortEntriesBy(entries, sortBy) {
   return out;
 }
 
-function groupEntries(entries, sortBy, isGrid, filters) {
+function groupEntries(entries, sortBy, isGrid, filters, exclusions) {
   if (!entries) {
     return [];
   }
-  let filteredEntries = filterEntriesBy(entries, filters);
+  let filteredEntries = filterEntriesBy(entries, filters, exclusions);
 
   let out = [];
   if (['wallet', 'category'].includes(sortBy)) {
