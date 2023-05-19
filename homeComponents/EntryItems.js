@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text, Alert} from 'react-native';
 
-import {EditButton, MinusButton} from '../components';
+import {EditButton, MinusButton, Row, Col} from '../components';
 import styles from '../styles';
 import {Icon} from '../Icon';
 import {getItemById} from '../utils';
@@ -28,13 +28,19 @@ export function EntryItem(
           />
         </View>
       )}
-      <View style={[styles.item, {width: '80%'}]}>
-        <Text style={[styles.textBasic]}>{item.title}</Text>
-        <Text style={[styles.textBasic, styles.greyedOutColor]}>
-          {item.dateAdded.split(' ')[0]}
-        </Text>
-        <Text style={styles.textBasic}>CHF {item.amount}</Text>
-      </View>
+      <Row style={[styles.item, {width: '80%'}]}>
+        <Col>
+          <Text style={[styles.textBasic]}>{item.title}</Text>
+        </Col>
+        <Col>
+          <Text style={[styles.textBasic, styles.greyedOutColor]}>
+            {item.dateAdded.split(' ')[0]}
+          </Text>
+        </Col>
+        <Col>
+          <Text style={styles.textBasic}>CHF {item.amount}</Text>
+        </Col>
+      </Row>
       {editState && (
         <View>
           <MinusButton

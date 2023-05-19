@@ -7,8 +7,12 @@ export function Col({numRows = 2, children}) {
   return <View style={styles[`${numRows}col`]}>{children}</View>;
 }
 
-export function Row({children}) {
-  return <View style={[styles.row, styles.center]}>{children}</View>;
+export function Row({children, ...args}) {
+  return (
+    <View style={[styles.row, styles.center]} {...args}>
+      {children}
+    </View>
+  );
 }
 
 export function CustomTextInput({placeholder, text, setText, ...props}) {
