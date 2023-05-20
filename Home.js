@@ -6,6 +6,7 @@ import {UpperRightEditButton, Separator} from './components';
 import ToggleBar from './homeComponents/ToggleBar';
 import SortAndFilterBar from './homeComponents/SortAndFilterBar';
 import ItemDisplay from './homeComponents/ItemDisplay';
+import {getCurrentMonthRange} from './utils';
 
 let db = getDBConnection();
 
@@ -28,6 +29,11 @@ export default function HomeScreen({navigation}) {
 
   const [excludeCategories, setExcludecategories] = useState(false);
   const [excludeWallets, setExcludeWallets] = useState(false);
+
+  const [dateRange, setDateRange] = useState({
+    title: 'Current Month',
+    dateRange: getCurrentMonthRange(),
+  });
 
   useEffect(() => {
     const focusHandler = navigation.addListener('focus', () => {
@@ -91,6 +97,8 @@ export default function HomeScreen({navigation}) {
         excludeWallets={excludeWallets}
         setExcludecategories={setExcludecategories}
         setExcludeWallets={setExcludeWallets}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
       />
       <Separator />
       {entries && (
@@ -108,6 +116,7 @@ export default function HomeScreen({navigation}) {
           walletsSelected={walletsSelected}
           categoriesExcluded={excludeCategories}
           walletsExcluded={excludeWallets}
+          dateRange={dateRange}
         />
       )}
       <Separator />

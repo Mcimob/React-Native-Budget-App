@@ -4,7 +4,7 @@ import {View, Text, Alert} from 'react-native';
 import {EditButton, MinusButton, Row, Col} from '../components';
 import styles from '../styles';
 import {Icon} from '../Icon';
-import {getItemById} from '../utils';
+import {getItemById, dateTimeToDate} from '../utils';
 import {removeItem, getItems} from '../db';
 
 export function EntryItem(
@@ -34,7 +34,7 @@ export function EntryItem(
         </Col>
         <Col>
           <Text style={[styles.textBasic, styles.greyedOutColor]}>
-            {item.dateAdded.split(' ')[0]}
+            {dateTimeToDate(item.dateAdded)}
           </Text>
         </Col>
         <Col>
@@ -176,7 +176,7 @@ function GridEntryItem({
             styles.greyedOutColor,
             {paddingVertical: 0},
           ]}>
-          {item.dateAdded.split(' ')[0]}
+          {dateTimeToDate(item.dateAdded)}
         </Text>
       </View>
     </View>

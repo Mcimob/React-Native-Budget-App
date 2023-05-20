@@ -18,6 +18,7 @@ export default function ItemDisplay({
   walletsSelected,
   categoriesExcluded,
   walletsExcluded,
+  dateRange,
 }) {
   return (
     <View style={{height: '50%'}}>
@@ -42,6 +43,7 @@ export default function ItemDisplay({
             {
               category: categoriesSelected,
               wallet: walletsSelected,
+              date: dateRange,
             },
             {
               category: categoriesExcluded,
@@ -101,6 +103,7 @@ export default function ItemDisplay({
             {
               category: categoriesSelected,
               wallet: walletsSelected,
+              date: dateRange,
             },
             {
               category: categoriesExcluded,
@@ -155,7 +158,15 @@ function SectionHeader({list, id}) {
 
 function filterEntriesBy(entries, filters, exclusions) {
   let filteredEntries = entries;
-  ['wallet', 'category'].forEach(itemType => {
+
+  let start = filters.date.dateRange[0].getTime();
+  let end = filters.date.dateRange[1].getTime();
+
+  filteredEntries = filteredEntries.filter(x => {
+    return x.dateAdded.getTime() >= start && x.dateAdded.getTime() <= end;
+  });
+
+  [('wallet', 'category')].forEach(itemType => {
     let itemFilters = filters[itemType];
     if (itemFilters.length != 0) {
       if (new Set(itemFilters.map(x => x.selected)).size != 1) {

@@ -98,7 +98,11 @@ function getItemsFromTransaction(tx, setter, itemType) {
   tx.executeSql(query_get, [], (tx, results) => {
     let tmp = [];
     for (let i = 0; i < results.rows.length; i++) {
-      tmp.push(results.rows.item(i));
+      let nextItem = {...results.rows.item(i)};
+      if (Object.keys(nextItem).includes('dateAdded')) {
+        nextItem.dateAdded = new Date(nextItem.dateAdded);
+      }
+      tmp.push(nextItem);
     }
     setter(tmp);
   });

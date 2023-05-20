@@ -3,8 +3,12 @@ import {View, Pressable, TextInput, Animated} from 'react-native';
 import styles from './styles';
 import {Icon} from './Icon';
 
-export function Col({numRows = 2, children}) {
-  return <View style={styles[`${numRows}col`]}>{children}</View>;
+export function Col({numRows = 2, children, ...args}) {
+  return (
+    <View style={styles[`${numRows}col`]} {...args}>
+      {children}
+    </View>
+  );
 }
 
 export function Row({children, ...args}) {

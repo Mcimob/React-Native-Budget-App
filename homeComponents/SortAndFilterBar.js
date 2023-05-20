@@ -13,6 +13,11 @@ import Switch from 'react-native-switch-toggles';
 import styles, {smoothChange, dark} from '../styles';
 import {Icon} from '../Icon';
 import {Row, Col, Separator} from '../components';
+import {
+  getCurrentMonthRange,
+  getCurrentWeekRange,
+  subtractMonths,
+} from '../utils';
 
 export default function SortAndFilterBar({
   sortBy,
@@ -27,6 +32,8 @@ export default function SortAndFilterBar({
   setExcludecategories,
   excludeWallets,
   setExcludeWallets,
+  dateRange,
+  setDateRange,
 }) {
   const [filterMenuVisible, setFilterMenuVisible] = useState(false);
 
@@ -87,6 +94,8 @@ export default function SortAndFilterBar({
         setExcludecategories={setExcludecategories}
         excludeWallets={excludeWallets}
         setExcludeWallets={setExcludeWallets}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
       />
     </>
   );
@@ -104,6 +113,8 @@ function FilterMenu({
   setExcludecategories,
   excludeWallets,
   setExcludeWallets,
+  dateRange,
+  setDateRange,
 }) {
   return (
     <Animated.View
@@ -115,16 +126,15 @@ function FilterMenu({
       }}>
       <ScrollView>
         <Row>
-          <Col>
+          <Col style={{alignSelf: 'flex-start'}}>
             <Text style={styles.textBasic}>Category</Text>
 
             <ExcludeSwitch
               exclude={excludeCategories}
               setExclude={setExcludecategories}
             />
-            <FlatList
-              data={categories}
-              renderItem={({item, index}) => (
+            {categories &&
+              categories.map((item, index) => (
                 <FilterItem
                   item={item}
                   index={index}
@@ -132,18 +142,16 @@ function FilterMenu({
                   setCurrentlySelected={setCategoriesSelected}
                   exclude={excludeCategories}
                 />
-              )}
-            />
+              ))}
           </Col>
-          <Col>
+          <Col style={{alignSelf: 'flex-start'}}>
             <Text style={styles.textBasic}>Wallet</Text>
             <ExcludeSwitch
               exclude={excludeWallets}
               setExclude={setExcludeWallets}
             />
-            <FlatList
-              data={wallets}
-              renderItem={({item, index}) => (
+            {wallets &&
+              wallets.map((item, index) => (
                 <FilterItem
                   item={item}
                   index={index}
@@ -151,11 +159,28 @@ function FilterMenu({
                   setCurrentlySelected={setWalletsSelected}
                   exclude={excludeWallets}
                 />
-              )}
-            />
+              ))}
           </Col>
-          <Col>
+          <Col style={{alignSelf: 'flex-start'}}>
             <Text style={styles.textBasic}>Date</Text>
+            {[
+              {
+                title: 'Past 3 Months',
+                dateRange: [subtractMonths(new Date(), 3), new Date()],
+              },
+              {
+                title: 'Past year',
+                dateRange: [subtractMonths(new Date(), 12), new Date()],
+              },
+              {title: 'Current week', dateRange: getCurrentWeekRange()},
+              {title: 'Current Month', dateRange: getCurrentMonthRange()},
+            ].map(item => (
+              <DateFilterItem
+                item={item}
+                currentlySelected={dateRange}
+                setCurrentlySelected={setDateRange}
+              />
+            ))}
           </Col>
         </Row>
       </ScrollView>
@@ -260,6 +285,44 @@ function FilterItem({
           ]}>
           <Text style={[styles.textBasic, {padding: 0}]}>{item.title}</Text>
         </Animated.View>
+      </Animated.View>
+    </Pressable>
+  );
+}
+
+function DateFilterItem({item, currentlySelected, setCurrentlySelected}) {
+  const [bgColor, setBgColor] = useState(
+    new Animated.Value(currentlySelected.title == item.title ? 1 : 0),
+  );
+
+  useEffect(() => {
+    smoothChange(
+      bgColor,
+      currentlySelected.title == item.title ? 1 : 0,
+      200,
+    ).start();
+  }, [currentlySelected]);
+
+  return (
+    <Pressable
+      onPress={() => {
+        setCurrentlySelected(item);
+      }}>
+      <Animated.View
+        style={[
+          styles.row,
+          styles.center,
+          styles.pad10,
+          styles.accentBorder,
+          {
+            backgroundColor: bgColor.interpolate({
+              inputRange: [0, 1],
+              outputRange: ['#121212', dark],
+            }),
+            margin: 5,
+          },
+        ]}>
+        <Text style={[styles.textBasic, {padding: 0}]}>{item.title}</Text>
       </Animated.View>
     </Pressable>
   );
