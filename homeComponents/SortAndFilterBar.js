@@ -1,14 +1,8 @@
 import React, {useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  Animated,
-  FlatList,
-  ScrollView,
-} from 'react-native';
+import {View, Text, Pressable, Animated, ScrollView} from 'react-native';
 import Picker from '@ouroboros/react-native-picker';
 import Switch from 'react-native-switch-toggles';
+import DatePicker from 'react-native-date-picker';
 
 import styles, {smoothChange, dark} from '../styles';
 import {Icon} from '../Icon';
@@ -116,6 +110,12 @@ function FilterMenu({
   dateRange,
   setDateRange,
 }) {
+  const [beginDate, setBeginDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
+
+  const [beginDateModalVisible, setBeginDateModalVisible] = useState(false);
+  const [endDateModalVisible, setEndDateModalVisible] = useState(false);
+
   return (
     <Animated.View
       style={{
@@ -181,9 +181,42 @@ function FilterMenu({
                 setCurrentlySelected={setDateRange}
               />
             ))}
+            <CustomDateFilterItem
+              currentlySelected={dateRange}
+              setBeginDateModalVisible={setBeginDateModalVisible}
+            />
           </Col>
         </Row>
       </ScrollView>
+      <DatePicker
+        title="Select begin Date"
+        modal
+        mode="date"
+        open={beginDateModalVisible}
+        date={beginDate}
+        onConfirm={d => {
+          setBeginDateModalVisible(false);
+          setBeginDate(d);
+          setEndDateModalVisible(true);
+        }}
+        onCancel={() => setBeginDateModalVisible(false)}
+        maximumDate={new Date()}
+      />
+      <DatePicker
+        title="Select end Date"
+        modal
+        mode="date"
+        open={endDateModalVisible}
+        date={endDate}
+        onConfirm={d => {
+          setEndDateModalVisible(false);
+          setEndDate(d);
+          setDateRange({title: 'Custom', dateRange: [beginDate, d]});
+        }}
+        onCancel={() => setEndDateModalVisible(false)}
+        maximumDate={new Date()}
+        minimumDate={beginDate}
+      />
     </Animated.View>
   );
 }
@@ -285,6 +318,45 @@ function FilterItem({
           ]}>
           <Text style={[styles.textBasic, {padding: 0}]}>{item.title}</Text>
         </Animated.View>
+      </Animated.View>
+    </Pressable>
+  );
+}
+
+function CustomDateFilterItem({currentlySelected, setBeginDateModalVisible}) {
+  const title = 'Custom';
+  const [bgColor, setBgColor] = useState(
+    new Animated.Value(currentlySelected.title == title ? 1 : 0),
+  );
+
+  useEffect(() => {
+    smoothChange(
+      bgColor,
+      currentlySelected.title == title ? 1 : 0,
+      200,
+    ).start();
+  }, [currentlySelected]);
+
+  return (
+    <Pressable
+      onPress={() => {
+        setBeginDateModalVisible(true);
+      }}>
+      <Animated.View
+        style={[
+          styles.row,
+          styles.center,
+          styles.pad10,
+          styles.accentBorder,
+          {
+            backgroundColor: bgColor.interpolate({
+              inputRange: [0, 1],
+              outputRange: ['#121212', dark],
+            }),
+            margin: 5,
+          },
+        ]}>
+        <Text style={[styles.textBasic, {padding: 0}]}>{title}</Text>
       </Animated.View>
     </Pressable>
   );

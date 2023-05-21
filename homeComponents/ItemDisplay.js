@@ -34,7 +34,13 @@ export default function ItemDisplay({
           height: '100%',
         }}>
         <SectionList
-          extraData={[entries, sortBy, categoriesSelected, walletsSelected]}
+          extraData={[
+            entries,
+            sortBy,
+            categoriesSelected,
+            walletsSelected,
+            dateRange,
+          ]}
           key="grid"
           sections={groupEntries(
             entries,

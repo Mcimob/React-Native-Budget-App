@@ -139,7 +139,7 @@ function initializeSelectedArray(selected, setSelected, items) {
   let newSelected = [];
   if (items) {
     for (let i = 0; i < items.length; i++) {
-      let indexInArray = idsUsed.find(x => x == items[i].id);
+      let indexInArray = idsUsed.findIndex(x => x == items[i].id);
       if (indexInArray) {
         newSelected.push({
           id: items[i].id,
