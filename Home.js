@@ -117,6 +117,7 @@ export default function HomeScreen({navigation}) {
           categoriesExcluded={excludeCategories}
           walletsExcluded={excludeWallets}
           dateRange={dateRange}
+          db={db}
         />
       )}
       <Separator />

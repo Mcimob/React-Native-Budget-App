@@ -19,6 +19,7 @@ export default function ItemDisplay({
   categoriesExcluded,
   walletsExcluded,
   dateRange,
+  db,
 }) {
   return (
     <View style={{height: '50%'}}>
@@ -65,6 +66,7 @@ export default function ItemDisplay({
               editState,
               setEntries,
               toggleState,
+              db
             )
           }
           renderSectionHeader={({section: {title}}) => (
@@ -124,6 +126,7 @@ export default function ItemDisplay({
               editState,
               setEntries,
               toggleState,
+              db,
             )
           }
           ListFooterComponent={<View style={{height: 30}} />}
